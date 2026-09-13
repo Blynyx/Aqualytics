@@ -28,7 +28,7 @@ class DashboardTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_dashboard_only_shows_authenticated_users_data(): void
+    public function test_dashboard_only_shows_authenticated_users_fish_farm_data(): void
     {
         $firstUser = User::factory()->create();
         $secondUser = User::factory()->create();

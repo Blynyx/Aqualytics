@@ -13,6 +13,7 @@ class Pond extends Model
     use HasFactory;
 
     protected $fillable = [
+        'fish_farm_id',
         'user_id',
         'name',
         'code',
@@ -21,9 +22,23 @@ class Pond extends Model
         'status',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (Pond $pond): void {
+            if ($pond->fish_farm_id === null && $pond->user_id !== null) {
+                $pond->fish_farm_id = User::find($pond->user_id)?->fish_farm_id;
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function fishFarm(): BelongsTo
+    {
+        return $this->belongsTo(FishFarm::class);
     }
 
     public function devices(): HasMany

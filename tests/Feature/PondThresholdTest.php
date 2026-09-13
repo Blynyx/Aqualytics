@@ -44,7 +44,7 @@ class PondThresholdTest extends TestCase
         ]);
     }
 
-    public function test_user_cannot_configure_thresholds_for_another_users_pond(): void
+    public function test_user_cannot_configure_thresholds_for_another_fish_farms_pond(): void
     {
         $firstUser = User::factory()->create();
         $secondUser = User::factory()->create();

@@ -13,6 +13,7 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         $ponds = $request->user()
+            ->fishFarm
             ->ponds()
             ->orderBy('name')
             ->get();

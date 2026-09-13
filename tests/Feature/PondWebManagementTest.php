@@ -62,7 +62,7 @@ class PondWebManagementTest extends TestCase
         $response->assertSee('EST-001');
     }
 
-    public function test_user_cannot_view_another_users_pond(): void
+    public function test_user_cannot_view_pond_from_another_fish_farm(): void
     {
         $firstUser = User::factory()->create();
         $secondUser = User::factory()->create();

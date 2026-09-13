@@ -10,7 +10,10 @@ class PondThresholdController extends Controller
 {
     public function store(Request $request, Pond $pond): RedirectResponse
     {
-        abort_unless($pond->user_id === $request->user()->id, 404);
+        abort_unless(
+            $pond->fish_farm_id === $request->user()->fish_farm_id,
+            404,
+        );
 
         $temperatureMaxRules = ['nullable', 'numeric'];
         $phMaxRules = ['nullable', 'numeric', 'between:0,14'];

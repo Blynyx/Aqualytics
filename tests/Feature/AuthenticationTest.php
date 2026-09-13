@@ -13,6 +13,7 @@ class AuthenticationTest extends TestCase
     public function test_guest_can_register(): void
     {
         $response = $this->post('/register', [
+            'fish_farm_name' => 'Piscigranja Aqualytics',
             'name' => 'Usuario Aqualytics',
             'email' => 'usuario@aqualytics.test',
             'password' => 'password123',

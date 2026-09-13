@@ -15,14 +15,32 @@
                 @csrf
 
                 <div>
-                    <label for="name" class="mb-2 block text-sm font-medium">Nombre</label>
+                    <label for="fish_farm_name" class="mb-2 block text-sm font-medium">
+                        Nombre de la piscigranja
+                    </label>
+                    <input
+                        id="fish_farm_name"
+                        name="fish_farm_name"
+                        type="text"
+                        value="{{ old('fish_farm_name') }}"
+                        required
+                        autofocus
+                        autocomplete="organization"
+                        class="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
+                    >
+                    @error('fish_farm_name')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="name" class="mb-2 block text-sm font-medium">Nombre del administrador</label>
                     <input
                         id="name"
                         name="name"
                         type="text"
                         value="{{ old('name') }}"
                         required
-                        autofocus
                         autocomplete="name"
                         class="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100"
                     >

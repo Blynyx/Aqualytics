@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FishFarm;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -42,12 +44,25 @@ class AuthController extends Controller
     public function register(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'fish_farm_name' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $user = User::create($validated);
+        $user = DB::transaction(function () use ($validated): User {
+            $fishFarm = FishFarm::create([
+                'name' => $validated['fish_farm_name'],
+                'status' => 'active',
+            ]);
+
+            return $fishFarm->users()->create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => $validated['password'],
+                'role' => User::ROLE_ADMIN,
+            ]);
+        });
 
         Auth::login($user);
         $request->session()->regenerate();

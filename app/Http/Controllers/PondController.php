@@ -12,7 +12,11 @@ class PondController extends Controller
 {
     public function index(Request $request): View
     {
-        $ponds = $request->user()->ponds()->get();
+        $ponds = $request->user()
+            ->fishFarm
+            ->ponds()
+            ->orderBy('name')
+            ->get();
 
         return view('ponds.index', compact('ponds'));
     }
@@ -24,7 +28,10 @@ class PondController extends Controller
 
     public function show(Request $request, Pond $pond): View
     {
-        abort_unless($pond->user_id === $request->user()->id, 404);
+        abort_unless(
+            $pond->fish_farm_id === $request->user()->fish_farm_id,
+            404,
+        );
 
         $pond->load([
             'devices' => fn ($query) => $query->orderBy('name'),
@@ -59,8 +66,9 @@ class PondController extends Controller
             'location' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $pond = $request->user()->ponds()->create([
+        $pond = $request->user()->fishFarm->ponds()->create([
             ...$validated,
+            'user_id' => $request->user()->id,
             'status' => 'active',
         ]);
 

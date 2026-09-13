@@ -85,7 +85,7 @@ class DeviceTest extends TestCase
         $this->assertDatabaseCount('devices', 1);
     }
 
-    public function test_user_cannot_register_device_for_another_users_pond(): void
+    public function test_user_cannot_register_device_for_another_fish_farms_pond(): void
     {
         $firstUser = User::factory()->create();
         $secondUser = User::factory()->create();

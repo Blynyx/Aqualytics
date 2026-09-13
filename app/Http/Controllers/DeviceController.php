@@ -14,7 +14,10 @@ class DeviceController extends Controller
         $nestedUnderPond = $pond !== null;
 
         if ($pond !== null) {
-            abort_unless($pond->user_id === $request->user()->id, 404);
+            abort_unless(
+                $pond->fish_farm_id === $request->user()->fish_farm_id,
+                404,
+            );
 
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
@@ -31,7 +34,7 @@ class DeviceController extends Controller
                     'required',
                     'integer',
                     Rule::exists('ponds', 'id')
-                        ->where('user_id', $request->user()->id),
+                        ->where('fish_farm_id', $request->user()->fish_farm_id),
                 ],
                 'name' => ['required', 'string', 'max:255'],
                 'device_uid' => [
@@ -42,7 +45,10 @@ class DeviceController extends Controller
                 ],
             ]);
 
-            $pond = $request->user()->ponds()->findOrFail($validated['pond_id']);
+            $pond = $request->user()
+                ->fishFarm
+                ->ponds()
+                ->findOrFail($validated['pond_id']);
         }
 
         $pond->devices()->create([

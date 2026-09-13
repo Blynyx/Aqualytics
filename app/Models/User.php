@@ -5,12 +5,19 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    public const ROLE_ADMIN = 'admin';
+
+    public const ROLE_SUPERVISOR = 'supervisor';
+
+    public const ROLE_SPECIALIST = 'specialist';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -20,9 +27,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'fish_farm_id',
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -51,5 +60,10 @@ class User extends Authenticatable
     public function ponds(): HasMany
     {
         return $this->hasMany(Pond::class);
+    }
+
+    public function fishFarm(): BelongsTo
+    {
+        return $this->belongsTo(FishFarm::class);
     }
 }

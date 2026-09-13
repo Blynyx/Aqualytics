@@ -53,7 +53,7 @@ class PondTest extends TestCase
         ]);
     }
 
-    public function test_user_can_only_see_their_own_ponds(): void
+    public function test_user_can_only_see_ponds_from_their_fish_farm(): void
     {
         $firstUser = User::factory()->create();
         $secondUser = User::factory()->create();
