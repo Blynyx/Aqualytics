@@ -29,4 +29,9 @@ class Pond extends Model
     {
         return $this->hasMany(Device::class);
     }
+
+    public function readings(): HasMany
+    {
+        return $this->hasMany(Reading::class);
+    }
 }
