@@ -180,14 +180,22 @@ class RoleAuthorizationTest extends TestCase
             'role' => User::ROLE_SPECIALIST,
         ]);
         $alert = $this->createAlert($fishFarm, $specialist);
+        $alert->update([
+            'assigned_to_user_id' => $specialist->id,
+            'assigned_at' => now(),
+            'status' => 'assigned',
+        ]);
 
         $this->actingAs($specialist)
-            ->post("/alerts/{$alert->id}/resolve")
+            ->post("/alerts/{$alert->id}/resolve", [
+                'resolution_notes' => 'El especialista aplicó la acción correctiva requerida.',
+            ])
             ->assertRedirect("/ponds/{$alert->pond_id}");
 
         $this->assertDatabaseHas('alerts', [
             'id' => $alert->id,
             'status' => 'resolved',
+            'resolved_by_user_id' => $specialist->id,
         ]);
         $this->assertNotNull($alert->fresh()->resolved_at);
     }

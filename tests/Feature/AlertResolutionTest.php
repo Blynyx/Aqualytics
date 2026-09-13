@@ -17,12 +17,16 @@ class AlertResolutionTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->post("/alerts/{$alert->id}/resolve");
+            ->post("/alerts/{$alert->id}/resolve", [
+                'resolution_notes' => 'El administrador verificó y corrigió la incidencia.',
+            ]);
 
         $response->assertRedirect("/ponds/{$pond->id}");
         $this->assertDatabaseHas('alerts', [
             'id' => $alert->id,
             'status' => 'resolved',
+            'resolved_by_user_id' => $user->id,
+            'resolution_notes' => 'El administrador verificó y corrigió la incidencia.',
         ]);
         $this->assertNotNull($alert->fresh()->resolved_at);
     }

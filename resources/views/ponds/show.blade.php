@@ -198,21 +198,74 @@
 
         <div class="mt-5 space-y-4">
             @forelse ($activeAlerts as $alert)
-                <article class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                    <div>
-                        <p class="font-semibold text-amber-900">⚠ {{ $alert->message }}</p>
-                        <p class="mt-1 text-sm text-amber-800">
-                            {{ $alert->parameter }} · Valor: {{ $alert->value }} · {{ $alert->detected_at }}
-                        </p>
+                <article class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p class="font-semibold text-amber-900">⚠ {{ $alert->message }}</p>
+                            <p class="mt-1 text-sm text-amber-800">
+                                {{ $alert->parameter }} · Valor: {{ $alert->value }} · {{ $alert->detected_at }}
+                            </p>
+                            @if ($alert->assignedTo)
+                                <p class="mt-2 text-sm font-medium text-amber-900">
+                                    Especialista asignado: {{ $alert->assignedTo->name }}
+                                </p>
+                            @endif
+                        </div>
+                        <span class="rounded-full bg-amber-200 px-3 py-1 text-xs font-semibold uppercase text-amber-900">
+                            {{ $alert->status }}
+                        </span>
                     </div>
-                    @if (in_array(auth()->user()->role, [
-                        \App\Models\User::ROLE_ADMIN,
-                        \App\Models\User::ROLE_SPECIALIST,
-                    ], true))
-                        <form method="POST" action="{{ route('alerts.resolve', $alert) }}">
+
+                    @if (
+                        $alert->status === 'active'
+                        && in_array(auth()->user()->role, [
+                            \App\Models\User::ROLE_ADMIN,
+                            \App\Models\User::ROLE_SUPERVISOR,
+                        ], true)
+                    )
+                        <form method="POST" action="{{ route('alerts.assign', $alert) }}" class="mt-4 flex flex-wrap items-end gap-3">
                             @csrf
-                            <button type="submit" class="rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">
-                                Resolver
+                            <div class="min-w-64 flex-1">
+                                <label for="specialist_{{ $alert->id }}" class="mb-2 block text-sm font-medium text-amber-900">
+                                    Asignar especialista
+                                </label>
+                                <select id="specialist_{{ $alert->id }}" name="specialist_id" required
+                                    class="w-full rounded-lg border border-amber-300 bg-white px-3 py-2">
+                                    <option value="">Selecciona un especialista</option>
+                                    @foreach ($specialists as $specialist)
+                                        <option value="{{ $specialist->id }}">{{ $specialist->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('specialist_id')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">
+                                Asignar incidencia
+                            </button>
+                        </form>
+                    @endif
+
+                    @if (
+                        auth()->user()->role === \App\Models\User::ROLE_ADMIN
+                        || (
+                            auth()->user()->role === \App\Models\User::ROLE_SPECIALIST
+                            && $alert->status === 'assigned'
+                            && $alert->assigned_to_user_id === auth()->id()
+                        )
+                    )
+                        <form method="POST" action="{{ route('alerts.resolve', $alert) }}" class="mt-4">
+                            @csrf
+                            <label for="resolution_notes_{{ $alert->id }}" class="mb-2 block text-sm font-medium text-amber-900">
+                                Acción correctiva realizada
+                            </label>
+                            <textarea id="resolution_notes_{{ $alert->id }}" name="resolution_notes" rows="3" required
+                                class="w-full rounded-lg border border-amber-300 bg-white px-3 py-2">{{ old('resolution_notes') }}</textarea>
+                            @error('resolution_notes')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <button type="submit" class="mt-3 rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">
+                                Resolver incidencia
                             </button>
                         </form>
                     @endif
@@ -220,6 +273,44 @@
             @empty
                 <p class="text-sm text-slate-500">No hay alertas activas.</p>
             @endforelse
+        </div>
+    </section>
+
+    <section class="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-200 px-6 py-4">
+            <h2 class="text-lg font-semibold">Historial de incidencias</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+                    <tr>
+                        <th class="px-6 py-3">Parámetro</th>
+                        <th class="px-6 py-3">Mensaje</th>
+                        <th class="px-6 py-3">Responsable</th>
+                        <th class="px-6 py-3">Acción correctiva</th>
+                        <th class="px-6 py-3">Resolución</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse ($resolvedAlerts as $alert)
+                        <tr>
+                            <td class="px-6 py-4">{{ $alert->parameter }}</td>
+                            <td class="px-6 py-4">{{ $alert->message }}</td>
+                            <td class="px-6 py-4">
+                                {{ $alert->resolvedBy?->name ?? $alert->assignedTo?->name ?? '—' }}
+                            </td>
+                            <td class="px-6 py-4">{{ $alert->resolution_notes ?: '—' }}</td>
+                            <td class="px-6 py-4 text-slate-500">{{ $alert->resolved_at }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                No hay incidencias resueltas.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </section>
 @endsection

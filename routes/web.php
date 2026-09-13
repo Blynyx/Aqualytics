@@ -48,6 +48,9 @@ Route::post('/ponds/{pond}/thresholds', [PondThresholdController::class, 'store'
     ->name('ponds.thresholds.store');
 Route::post('/devices', [DeviceController::class, 'store'])
     ->middleware(['auth', 'role:admin']);
+Route::post('/alerts/{alert}/assign', [AlertController::class, 'assign'])
+    ->middleware('auth')
+    ->name('alerts.assign');
 Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])
     ->middleware('auth')
     ->name('alerts.resolve');

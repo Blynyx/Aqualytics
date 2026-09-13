@@ -14,6 +14,9 @@ class Alert extends Model
         'pond_id',
         'device_id',
         'reading_id',
+        'reported_by_user_id',
+        'assigned_to_user_id',
+        'resolved_by_user_id',
         'parameter',
         'value',
         'min_threshold',
@@ -22,7 +25,9 @@ class Alert extends Model
         'status',
         'message',
         'detected_at',
+        'assigned_at',
         'resolved_at',
+        'resolution_notes',
     ];
 
     public function pond(): BelongsTo
@@ -38,5 +43,20 @@ class Alert extends Model
     public function reading(): BelongsTo
     {
         return $this->belongsTo(Reading::class);
+    }
+
+    public function reportedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reported_by_user_id');
+    }
+
+    public function assignedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to_user_id');
+    }
+
+    public function resolvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by_user_id');
     }
 }

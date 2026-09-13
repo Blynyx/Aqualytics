@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pond;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -45,8 +46,23 @@ class PondController extends Controller
             ->get();
 
         $activeAlerts = $pond->alerts()
-            ->where('status', 'active')
+            ->with('assignedTo')
+            ->whereIn('status', ['active', 'assigned'])
             ->latest('detected_at')
+            ->get();
+
+        $resolvedAlerts = $pond->alerts()
+            ->with(['assignedTo', 'resolvedBy'])
+            ->where('status', 'resolved')
+            ->latest('resolved_at')
+            ->limit(10)
+            ->get();
+
+        $specialists = $request->user()
+            ->fishFarm
+            ->users()
+            ->where('role', User::ROLE_SPECIALIST)
+            ->orderBy('name')
             ->get();
 
         return view('ponds.show', [
@@ -54,6 +70,8 @@ class PondController extends Controller
             'latestReading' => $latestReadings->first(),
             'latestReadings' => $latestReadings,
             'activeAlerts' => $activeAlerts,
+            'resolvedAlerts' => $resolvedAlerts,
+            'specialists' => $specialists,
         ]);
     }
 
