@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
@@ -30,7 +31,20 @@ Route::post('/logout', [AuthController::class, 'logout'])
 Route::get('/ponds', [PondController::class, 'index'])
     ->middleware('auth')
     ->name('ponds.index');
+Route::get('/ponds/create', [PondController::class, 'create'])
+    ->middleware('auth')
+    ->name('ponds.create');
+Route::get('/ponds/{pond}', [PondController::class, 'show'])
+    ->middleware('auth')
+    ->name('ponds.show');
 Route::post('/ponds', [PondController::class, 'store'])->middleware('auth');
+Route::post('/ponds/{pond}/devices', [DeviceController::class, 'store'])
+    ->middleware('auth')
+    ->name('ponds.devices.store');
 Route::post('/ponds/{pond}/thresholds', [PondThresholdController::class, 'store'])
-    ->middleware('auth');
+    ->middleware('auth')
+    ->name('ponds.thresholds.store');
 Route::post('/devices', [DeviceController::class, 'store'])->middleware('auth');
+Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])
+    ->middleware('auth')
+    ->name('alerts.resolve');

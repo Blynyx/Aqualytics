@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pond;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -16,6 +17,39 @@ class PondController extends Controller
         return view('ponds.index', compact('ponds'));
     }
 
+    public function create(): View
+    {
+        return view('ponds.create');
+    }
+
+    public function show(Request $request, Pond $pond): View
+    {
+        abort_unless($pond->user_id === $request->user()->id, 404);
+
+        $pond->load([
+            'devices' => fn ($query) => $query->orderBy('name'),
+            'threshold',
+        ]);
+
+        $latestReadings = $pond->readings()
+            ->with('device')
+            ->latest('recorded_at')
+            ->limit(10)
+            ->get();
+
+        $activeAlerts = $pond->alerts()
+            ->where('status', 'active')
+            ->latest('detected_at')
+            ->get();
+
+        return view('ponds.show', [
+            'pond' => $pond,
+            'latestReading' => $latestReadings->first(),
+            'latestReadings' => $latestReadings,
+            'activeAlerts' => $activeAlerts,
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -25,11 +59,11 @@ class PondController extends Controller
             'location' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $request->user()->ponds()->create([
+        $pond = $request->user()->ponds()->create([
             ...$validated,
             'status' => 'active',
         ]);
 
-        return redirect('/');
+        return redirect("/ponds/{$pond->id}");
     }
 }

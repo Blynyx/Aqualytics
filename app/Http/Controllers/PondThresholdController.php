@@ -40,6 +40,6 @@ class PondThresholdController extends Controller
 
         $pond->threshold()->updateOrCreate([], $validated);
 
-        return redirect('/ponds');
+        return redirect("/ponds/{$pond->id}");
     }
 }
