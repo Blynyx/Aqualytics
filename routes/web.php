@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\PondController;
 use App\Http\Controllers\PondThresholdController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -32,19 +33,27 @@ Route::get('/ponds', [PondController::class, 'index'])
     ->middleware('auth')
     ->name('ponds.index');
 Route::get('/ponds/create', [PondController::class, 'create'])
-    ->middleware('auth')
+    ->middleware(['auth', 'role:admin'])
     ->name('ponds.create');
 Route::get('/ponds/{pond}', [PondController::class, 'show'])
     ->middleware('auth')
     ->name('ponds.show');
-Route::post('/ponds', [PondController::class, 'store'])->middleware('auth');
+Route::post('/ponds', [PondController::class, 'store'])
+    ->middleware(['auth', 'role:admin']);
 Route::post('/ponds/{pond}/devices', [DeviceController::class, 'store'])
-    ->middleware('auth')
+    ->middleware(['auth', 'role:admin'])
     ->name('ponds.devices.store');
 Route::post('/ponds/{pond}/thresholds', [PondThresholdController::class, 'store'])
-    ->middleware('auth')
+    ->middleware(['auth', 'role:admin'])
     ->name('ponds.thresholds.store');
-Route::post('/devices', [DeviceController::class, 'store'])->middleware('auth');
+Route::post('/devices', [DeviceController::class, 'store'])
+    ->middleware(['auth', 'role:admin']);
 Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])
     ->middleware('auth')
     ->name('alerts.resolve');
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+});

@@ -19,7 +19,22 @@
                     <a href="{{ route('ponds.index') }}" class="text-slate-600 hover:text-cyan-700">
                         Estanques
                     </a>
-                    <span class="hidden text-slate-400 sm:inline">{{ auth()->user()->name }}</span>
+                    @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
+                        <a href="{{ route('users.index') }}" class="text-slate-600 hover:text-cyan-700">
+                            Usuarios
+                        </a>
+                    @endif
+                    <div class="hidden text-right md:block">
+                        <p class="font-medium text-slate-700">{{ auth()->user()->fishFarm->name }}</p>
+                        <p class="text-xs text-slate-400">
+                            {{ auth()->user()->name }} ·
+                            {{ [
+                                'admin' => 'Administrador',
+                                'supervisor' => 'Supervisor',
+                                'specialist' => 'Especialista',
+                            ][auth()->user()->role] ?? auth()->user()->role }}
+                        </p>
+                    </div>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-white hover:bg-slate-700">

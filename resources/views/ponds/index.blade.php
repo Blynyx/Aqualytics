@@ -8,9 +8,11 @@
             <p class="text-sm font-semibold uppercase tracking-wider text-cyan-700">Gestión acuícola</p>
             <h1 class="mt-2 text-3xl font-bold">Mis estanques</h1>
         </div>
-        <a href="{{ route('ponds.create') }}" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
-            Nuevo estanque
-        </a>
+        @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
+            <a href="{{ route('ponds.create') }}" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
+                Nuevo estanque
+            </a>
+        @endif
     </div>
 
     <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">

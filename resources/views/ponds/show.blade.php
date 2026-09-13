@@ -96,62 +96,66 @@
             @endforelse
         </div>
 
-        <form method="POST" action="{{ route('ponds.devices.store', $pond) }}" class="mt-6 grid gap-4 rounded-xl bg-slate-50 p-5 md:grid-cols-[1fr_1fr_auto] md:items-end">
-            @csrf
-            <div>
-                <label for="device_name" class="mb-2 block text-sm font-medium">Nombre del dispositivo</label>
-                <input id="device_name" name="name" value="{{ old('name') }}" required
-                    class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
-                @error('name')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-            <div>
-                <label for="device_uid" class="mb-2 block text-sm font-medium">Device UID</label>
-                <input id="device_uid" name="device_uid" value="{{ old('device_uid') }}" required
-                    class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
-                @error('device_uid')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-            <button type="submit" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
-                Registrar ESP32
-            </button>
-        </form>
-    </section>
-
-    <section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-lg font-semibold">Configuración hídrica</h2>
-
-        <form method="POST" action="{{ route('ponds.thresholds.store', $pond) }}" class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            @csrf
-            @foreach ([
-                'temperature_min' => 'Temperatura mínima',
-                'temperature_max' => 'Temperatura máxima',
-                'ph_min' => 'pH mínimo',
-                'ph_max' => 'pH máximo',
-                'turbidity_max' => 'Turbidez máxima',
-                'water_level_min' => 'Nivel mínimo',
-                'water_level_max' => 'Nivel máximo',
-            ] as $field => $label)
+        @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
+            <form method="POST" action="{{ route('ponds.devices.store', $pond) }}" class="mt-6 grid gap-4 rounded-xl bg-slate-50 p-5 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                @csrf
                 <div>
-                    <label for="{{ $field }}" class="mb-2 block text-sm font-medium">{{ $label }}</label>
-                    <input id="{{ $field }}" name="{{ $field }}" type="number" step="0.01"
-                        value="{{ old($field, $pond->threshold?->{$field}) }}"
-                        class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
-                    @error($field)
+                    <label for="device_name" class="mb-2 block text-sm font-medium">Nombre del dispositivo</label>
+                    <input id="device_name" name="name" value="{{ old('name') }}" required
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
+                    @error('name')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-            @endforeach
-
-            <div class="flex items-end">
-                <button type="submit" class="w-full rounded-lg bg-slate-900 px-5 py-2.5 font-semibold text-white hover:bg-slate-700">
-                    Guardar rangos
+                <div>
+                    <label for="device_uid" class="mb-2 block text-sm font-medium">Device UID</label>
+                    <input id="device_uid" name="device_uid" value="{{ old('device_uid') }}" required
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
+                    @error('device_uid')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <button type="submit" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
+                    Registrar ESP32
                 </button>
-            </div>
-        </form>
+            </form>
+        @endif
     </section>
+
+    @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
+        <section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-semibold">Configuración hídrica</h2>
+
+            <form method="POST" action="{{ route('ponds.thresholds.store', $pond) }}" class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                @csrf
+                @foreach ([
+                    'temperature_min' => 'Temperatura mínima',
+                    'temperature_max' => 'Temperatura máxima',
+                    'ph_min' => 'pH mínimo',
+                    'ph_max' => 'pH máximo',
+                    'turbidity_max' => 'Turbidez máxima',
+                    'water_level_min' => 'Nivel mínimo',
+                    'water_level_max' => 'Nivel máximo',
+                ] as $field => $label)
+                    <div>
+                        <label for="{{ $field }}" class="mb-2 block text-sm font-medium">{{ $label }}</label>
+                        <input id="{{ $field }}" name="{{ $field }}" type="number" step="0.01"
+                            value="{{ old($field, $pond->threshold?->{$field}) }}"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
+                        @error($field)
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endforeach
+
+                <div class="flex items-end">
+                    <button type="submit" class="w-full rounded-lg bg-slate-900 px-5 py-2.5 font-semibold text-white hover:bg-slate-700">
+                        Guardar rangos
+                    </button>
+                </div>
+            </form>
+        </section>
+    @endif
 
     <section class="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div class="border-b border-slate-200 px-6 py-4">
@@ -201,12 +205,17 @@
                             {{ $alert->parameter }} · Valor: {{ $alert->value }} · {{ $alert->detected_at }}
                         </p>
                     </div>
-                    <form method="POST" action="{{ route('alerts.resolve', $alert) }}">
-                        @csrf
-                        <button type="submit" class="rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">
-                            Resolver
-                        </button>
-                    </form>
+                    @if (in_array(auth()->user()->role, [
+                        \App\Models\User::ROLE_ADMIN,
+                        \App\Models\User::ROLE_SPECIALIST,
+                    ], true))
+                        <form method="POST" action="{{ route('alerts.resolve', $alert) }}">
+                            @csrf
+                            <button type="submit" class="rounded-lg bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">
+                                Resolver
+                            </button>
+                        </form>
+                    @endif
                 </article>
             @empty
                 <p class="text-sm text-slate-500">No hay alertas activas.</p>
