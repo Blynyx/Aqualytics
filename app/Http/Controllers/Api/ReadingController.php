@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Device;
+use App\Services\AlertEvaluationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ReadingController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(
+        Request $request,
+        AlertEvaluationService $alertEvaluationService,
+    ): JsonResponse
     {
         $validated = $request->validate([
             'device_uid' => ['required', 'string', 'exists:devices,device_uid'],
@@ -34,6 +38,8 @@ class ReadingController extends Controller
         $device->update([
             'last_seen_at' => $recordedAt,
         ]);
+
+        $alertEvaluationService->evaluate($reading);
 
         return response()->json([
             'message' => 'Lectura registrada correctamente',

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pond extends Model
 {
@@ -33,5 +34,15 @@ class Pond extends Model
     public function readings(): HasMany
     {
         return $this->hasMany(Reading::class);
+    }
+
+    public function threshold(): HasOne
+    {
+        return $this->hasOne(PondThreshold::class);
+    }
+
+    public function alerts(): HasMany
+    {
+        return $this->hasMany(Alert::class);
     }
 }
