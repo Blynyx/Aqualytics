@@ -6,6 +6,82 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Segoe UI Variable', 'Segoe UI', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    html {
+        @apply scroll-smooth scroll-pt-20;
+    }
+
+    body {
+        @apply bg-slate-50 font-sans text-slate-950 antialiased;
+    }
+
+    button,
+    a,
+    input,
+    select,
+    textarea {
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 focus-visible:ring-offset-2;
+    }
+
+    button,
+    [role='button'] {
+        @apply cursor-pointer;
+    }
+
+    ::selection {
+        @apply bg-cyan-100 text-cyan-950;
+    }
+}
+
+@layer components {
+    .surface-card {
+        @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm;
+    }
+
+    .section-eyebrow {
+        @apply text-xs font-bold uppercase tracking-[0.18em] text-cyan-700;
+    }
+
+    .form-label {
+        @apply mb-2 block text-sm font-semibold text-slate-700;
+    }
+
+    .form-hint {
+        @apply mt-1.5 text-xs leading-5 text-slate-500;
+    }
+
+    .form-control {
+        @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 hover:border-slate-400 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100;
+    }
+
+    .form-error {
+        @apply mt-2 flex items-center gap-1.5 text-sm font-medium text-red-600;
+    }
+
+    .btn-primary {
+        @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-cyan-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-cyan-800 focus-visible:ring-cyan-600;
+    }
+
+    .btn-secondary {
+        @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50;
+    }
+
+    .table-head {
+        @apply bg-slate-50/80 text-left text-[0.6875rem] font-bold uppercase tracking-[0.12em] text-slate-500;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
 }
