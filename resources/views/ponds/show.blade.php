@@ -81,7 +81,7 @@
 
         <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             @forelse ($pond->devices as $device)
-                <article class="rounded-xl border border-slate-200 p-4">
+                <article data-cy="device-card" class="rounded-xl border border-slate-200 p-4">
                     <div class="flex items-start justify-between gap-3">
                         <h3 class="font-semibold">{{ $device->name }}</h3>
                         <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold uppercase text-emerald-700">
@@ -101,7 +101,7 @@
                 @csrf
                 <div>
                     <label for="device_name" class="mb-2 block text-sm font-medium">Nombre del dispositivo</label>
-                    <input id="device_name" name="name" value="{{ old('name') }}" required
+                    <input id="device_name" name="name" data-cy="device-name" value="{{ old('name') }}" required
                         class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
                     @error('name')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -109,13 +109,13 @@
                 </div>
                 <div>
                     <label for="device_uid" class="mb-2 block text-sm font-medium">Device UID</label>
-                    <input id="device_uid" name="device_uid" value="{{ old('device_uid') }}" required
+                    <input id="device_uid" name="device_uid" data-cy="device-uid" value="{{ old('device_uid') }}" required
                         class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
                     @error('device_uid')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-                <button type="submit" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
+                <button type="submit" data-cy="submit-device" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
                     Registrar ESP32
                 </button>
             </form>
@@ -139,17 +139,17 @@
                 ] as $field => $label)
                     <div>
                         <label for="{{ $field }}" class="mb-2 block text-sm font-medium">{{ $label }}</label>
-                        <input id="{{ $field }}" name="{{ $field }}" type="number" step="0.01"
+                        <input id="{{ $field }}" name="{{ $field }}" data-cy="{{ str_replace('_', '-', $field) }}" type="number" step="0.01"
                             value="{{ old($field, $pond->threshold?->{$field}) }}"
                             class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
                         @error($field)
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            <p data-cy="{{ str_replace('_', '-', $field) }}-error" class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                 @endforeach
 
                 <div class="flex items-end">
-                    <button type="submit" class="w-full rounded-lg bg-slate-900 px-5 py-2.5 font-semibold text-white hover:bg-slate-700">
+                    <button type="submit" data-cy="submit-thresholds" class="w-full rounded-lg bg-slate-900 px-5 py-2.5 font-semibold text-white hover:bg-slate-700">
                         Guardar rangos
                     </button>
                 </div>
