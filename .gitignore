@@ -16,6 +16,8 @@
 /public/build
 /public/hot
 /public/storage
+/cypress/screenshots
+/cypress/videos
 /storage/*.key
 /storage/pail
 /vendor

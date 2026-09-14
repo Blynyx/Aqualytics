@@ -19,6 +19,7 @@
                     <input
                         id="email"
                         name="email"
+                        data-cy="login-email"
                         type="email"
                         value="{{ old('email') }}"
                         required
@@ -36,6 +37,7 @@
                     <input
                         id="password"
                         name="password"
+                        data-cy="login-password"
                         type="password"
                         required
                         autocomplete="current-password"
@@ -46,7 +48,7 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="w-full rounded-lg bg-cyan-700 px-4 py-3 font-semibold text-white hover:bg-cyan-600">
+                <button type="submit" data-cy="login-submit" class="w-full rounded-lg bg-cyan-700 px-4 py-3 font-semibold text-white hover:bg-cyan-600">
                     Ingresar
                 </button>
             </form>

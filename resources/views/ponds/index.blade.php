@@ -9,7 +9,7 @@
             <h1 class="mt-2 text-3xl font-bold">Mis estanques</h1>
         </div>
         @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
-            <a href="{{ route('ponds.create') }}" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
+            <a href="{{ route('ponds.create') }}" data-cy="new-pond" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
                 Nuevo estanque
             </a>
         @endif
@@ -36,7 +36,7 @@
                         <td class="px-6 py-4">{{ $pond->location ?: '—' }}</td>
                         <td class="px-6 py-4">{{ $pond->status }}</td>
                         <td class="px-6 py-4 text-right">
-                            <a href="{{ route('ponds.show', $pond) }}" class="font-semibold text-cyan-700 hover:underline">
+                            <a href="{{ route('ponds.show', $pond) }}" data-cy="pond-details" class="font-semibold text-cyan-700 hover:underline">
                                 Ver detalles
                             </a>
                         </td>

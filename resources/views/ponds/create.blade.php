@@ -17,7 +17,7 @@
 
             <div>
                 <label for="name" class="mb-2 block text-sm font-medium">Nombre</label>
-                <input id="name" name="name" value="{{ old('name') }}" required
+                <input id="name" name="name" data-cy="pond-name" value="{{ old('name') }}" required
                     class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
                 @error('name')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -26,7 +26,7 @@
 
             <div>
                 <label for="code" class="mb-2 block text-sm font-medium">Código</label>
-                <input id="code" name="code" value="{{ old('code') }}" required
+                <input id="code" name="code" data-cy="pond-code" value="{{ old('code') }}" required
                     class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
                 @error('code')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -36,7 +36,7 @@
             <div class="grid gap-5 sm:grid-cols-2">
                 <div>
                     <label for="species" class="mb-2 block text-sm font-medium">Especie</label>
-                    <input id="species" name="species" value="{{ old('species') }}"
+                    <input id="species" name="species" data-cy="pond-species" value="{{ old('species') }}"
                         class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
                     @error('species')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -45,7 +45,7 @@
 
                 <div>
                     <label for="location" class="mb-2 block text-sm font-medium">Ubicación</label>
-                    <input id="location" name="location" value="{{ old('location') }}"
+                    <input id="location" name="location" data-cy="pond-location" value="{{ old('location') }}"
                         class="w-full rounded-lg border border-slate-300 px-3 py-2.5 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100">
                     @error('location')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -57,7 +57,7 @@
                 <a href="{{ route('ponds.index') }}" class="rounded-lg border border-slate-300 px-4 py-2.5 font-medium text-slate-600 hover:bg-slate-50">
                     Cancelar
                 </a>
-                <button type="submit" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
+                <button type="submit" data-cy="submit-pond" class="rounded-lg bg-cyan-700 px-5 py-2.5 font-semibold text-white hover:bg-cyan-600">
                     Crear estanque
                 </button>
             </div>
