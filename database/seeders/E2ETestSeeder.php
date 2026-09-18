@@ -29,7 +29,9 @@ class E2ETestSeeder extends Seeder
             $fishFarm = FishFarm::create([
                 'name' => 'Piscigranja Cypress',
                 'status' => 'active',
+                'account_type' => FishFarm::TYPE_FARM,
             ]);
+            $fishFarm->assignDefaultSubscription();
 
             $admin = $fishFarm->users()->create([
                 'name' => 'Administrador Cypress',
@@ -59,6 +61,7 @@ class E2ETestSeeder extends Seeder
                 'species' => 'Tilapia',
                 'location' => 'Zona de pruebas',
                 'status' => 'active',
+                'unit_type' => \App\Models\Pond::TYPE_POND,
             ]);
 
             $pond->threshold()->create([

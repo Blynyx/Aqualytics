@@ -1,16 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Nuevo estanque | Aqualytics')
-@section('header-title', 'Nuevo estanque')
+@php $account = auth()->user()->fishFarm; @endphp
+
+@section('title', ($account->isHome() ? 'Nueva pecera' : 'Nuevo estanque').' | Aqualytics')
+@section('header-title', $account->isHome() ? 'Nueva pecera' : 'Nuevo estanque')
 
 @section('content')
     <div class="mx-auto max-w-4xl">
         <x-page-header
-            eyebrow="Gestión acuícola"
-            title="Nuevo estanque"
-            description="Registra una nueva unidad de producción para comenzar su monitoreo."
+            eyebrow="Monitoreo"
+            :title="$account->isHome() ? 'Nueva pecera' : 'Nuevo estanque'"
+            :description="$account->isHome() ? 'Registra tu pecera para comenzar el monitoreo.' : 'Registra una nueva unidad de producción para comenzar su monitoreo.'"
             :back-url="route('ponds.index')"
-            back-label="Volver a estanques"
+            :back-label="$account->isHome() ? 'Volver a peceras' : 'Volver a estanques'"
         />
 
         <form method="POST" action="{{ url('/ponds') }}" class="surface-card overflow-hidden">
@@ -26,16 +28,16 @@
                     </span>
                     <div>
                         <h2 class="font-extrabold text-slate-900">Información general</h2>
-                        <p class="mt-0.5 text-sm text-slate-500">Datos para identificar el estanque dentro de la plataforma.</p>
+                        <p class="mt-0.5 text-sm text-slate-500">Datos para identificar {{ $account->isHome() ? 'tu pecera' : 'el estanque' }} dentro de la plataforma.</p>
                     </div>
                 </div>
             </div>
 
             <div class="grid gap-6 p-5 sm:grid-cols-2 sm:p-8">
                 <div>
-                    <label for="name" class="form-label">Nombre del estanque</label>
+                    <label for="name" class="form-label">{{ $account->isHome() ? 'Nombre de la pecera' : 'Nombre del estanque' }}</label>
                     <input id="name" name="name" data-cy="pond-name" value="{{ old('name') }}" required
-                        autofocus placeholder="Ej. Estanque Norte" class="form-control">
+                        autofocus placeholder="{{ $account->isHome() ? 'Ej. Pecera de la sala' : 'Ej. Estanque Norte' }}" class="form-control">
                     <p class="form-hint">Usa un nombre fácil de reconocer por el equipo.</p>
                     @error('name')
                         <p class="form-error"><span aria-hidden="true">●</span>{{ $message }}</p>

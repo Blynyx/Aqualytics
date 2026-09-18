@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Estanques | Aqualytics')
-@section('header-title', 'Estanques')
+@php $account = auth()->user()->fishFarm; @endphp
+
+@section('title', $account->unitsLabel().' | Aqualytics')
+@section('header-title', $account->unitsLabel())
 
 @section('content')
     <x-page-header
-        eyebrow="Gestión acuícola"
-        title="Estanques"
-        description="Administra las unidades de producción y consulta su estado operativo."
+        eyebrow="Monitoreo"
+        :title="$account->unitsLabel()"
+        :description="$account->isHome() ? 'Administra tu pecera y consulta su estado.' : 'Administra las unidades de producción y consulta su estado operativo.'"
     >
         @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
             <x-slot:actions>
@@ -15,7 +17,7 @@
                     <svg class="size-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                    Nuevo estanque
+                    {{ $account->isHome() ? 'Nueva pecera' : 'Nuevo estanque' }}
                 </a>
             </x-slot:actions>
         @endif
@@ -25,7 +27,7 @@
         <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-6">
             <div>
                 <h2 class="font-extrabold text-slate-900">Unidades registradas</h2>
-                <p class="mt-1 text-xs text-slate-500">{{ $ponds->count() }} {{ $ponds->count() === 1 ? 'estanque' : 'estanques' }} en esta piscigranja</p>
+                <p class="mt-1 text-xs text-slate-500">{{ $ponds->count() }} {{ Str::lower($ponds->count() === 1 ? $account->unitLabel() : $account->unitsLabel()) }} en {{ $account->isHome() ? 'tu cuenta' : 'esta piscigranja' }}</p>
             </div>
             <span class="grid size-9 place-items-center rounded-xl bg-cyan-50 text-cyan-700">
                 <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">

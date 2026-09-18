@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pond;
+use App\Services\SubscriptionLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class DeviceController extends Controller
 {
@@ -49,6 +51,14 @@ class DeviceController extends Controller
                 ->fishFarm
                 ->ponds()
                 ->findOrFail($validated['pond_id']);
+        }
+
+        $limits = app(SubscriptionLimitService::class);
+
+        if (! $limits->canCreateDevice($request->user()->fishFarm)) {
+            throw ValidationException::withMessages([
+                'device_uid' => 'Has alcanzado el límite de dispositivos de tu plan.',
+            ]);
         }
 
         $pond->devices()->create([

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alert;
 use App\Models\Device;
 use App\Models\Reading;
+use App\Services\SubscriptionLimitService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -12,8 +13,9 @@ class DashboardController extends Controller
 {
     public function index(Request $request): View
     {
-        $ponds = $request->user()
-            ->fishFarm
+        $fishFarm = $request->user()->fishFarm;
+        $fishFarm->load('subscription.plan');
+        $ponds = $fishFarm
             ->ponds()
             ->orderBy('name')
             ->get();
@@ -46,6 +48,9 @@ class DashboardController extends Controller
             'activeAlertCount' => $activeAlertCount,
             'latestReadings' => $latestReadings,
             'activeAlerts' => $activeAlerts,
+            'account' => $fishFarm,
+            'plan' => $fishFarm->subscription?->plan,
+            'usage' => app(SubscriptionLimitService::class)->usage($fishFarm),
         ]);
     }
 }

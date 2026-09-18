@@ -14,6 +14,7 @@ class FishFarmTenancyTest extends TestCase
     public function test_registration_creates_fish_farm_and_admin_user(): void
     {
         $response = $this->post('/register', [
+            'account_type' => 'farm',
             'fish_farm_name' => 'Piscigranja Los Andes',
             'name' => 'Administrador',
             'email' => 'admin@losandes.test',

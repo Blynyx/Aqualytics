@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -44,6 +45,7 @@ class AuthController extends Controller
     public function register(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'account_type' => ['required', Rule::in([FishFarm::TYPE_HOME, FishFarm::TYPE_FARM])],
             'fish_farm_name' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
@@ -54,14 +56,19 @@ class AuthController extends Controller
             $fishFarm = FishFarm::create([
                 'name' => $validated['fish_farm_name'],
                 'status' => 'active',
+                'account_type' => $validated['account_type'],
             ]);
 
-            return $fishFarm->users()->create([
+            $user = $fishFarm->users()->create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => $validated['password'],
                 'role' => User::ROLE_ADMIN,
             ]);
+
+            $fishFarm->assignDefaultSubscription();
+
+            return $user;
         });
 
         Auth::login($user);

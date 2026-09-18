@@ -26,10 +26,11 @@ return [
     'unique' => 'El :attribute ya está en uso.',
 
     'attributes' => [
+        'account_type' => 'tipo de cuenta',
         'code' => 'código',
         'device_uid' => 'identificador del dispositivo',
         'email' => 'correo electrónico',
-        'fish_farm_name' => 'nombre de la piscigranja',
+        'fish_farm_name' => 'nombre de la cuenta',
         'location' => 'ubicación',
         'name' => 'nombre',
         'password' => 'contraseña',

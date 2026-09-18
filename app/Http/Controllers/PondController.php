@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Pond;
 use App\Models\User;
+use App\Services\SubscriptionLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class PondController extends Controller
@@ -77,7 +79,14 @@ class PondController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $fishFarmId = $request->user()->fish_farm_id;
+        $fishFarm = $request->user()->fishFarm;
+        $limits = app(SubscriptionLimitService::class);
+
+        if (! $limits->canCreateUnit($fishFarm)) {
+            throw ValidationException::withMessages([
+                'name' => 'Has alcanzado el límite de '.$fishFarm->unitsLabel().' de tu plan.',
+            ]);
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -86,17 +95,18 @@ class PondController extends Controller
                 'string',
                 'max:255',
                 Rule::unique('ponds', 'code')->where(
-                    fn ($query) => $query->where('fish_farm_id', $fishFarmId)
+                    fn ($query) => $query->where('fish_farm_id', $fishFarm->id)
                 ),
             ],
             'species' => ['nullable', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $pond = $request->user()->fishFarm->ponds()->create([
+        $pond = $fishFarm->ponds()->create([
             ...$validated,
             'user_id' => $request->user()->id,
             'status' => 'active',
+            'unit_type' => $fishFarm->isHome() ? Pond::TYPE_AQUARIUM : Pond::TYPE_POND,
         ]);
 
         return redirect("/ponds/{$pond->id}");

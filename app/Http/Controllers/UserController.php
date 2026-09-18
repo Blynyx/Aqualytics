@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\SubscriptionLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -28,6 +30,15 @@ class UserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $fishFarm = $request->user()->fishFarm;
+        $limits = app(SubscriptionLimitService::class);
+
+        if (! $limits->canCreateUser($fishFarm)) {
+            throw ValidationException::withMessages([
+                'email' => 'Has alcanzado el límite de usuarios de tu plan.',
+            ]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],

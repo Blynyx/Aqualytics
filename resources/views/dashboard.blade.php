@@ -7,16 +7,41 @@
     <x-page-header
         eyebrow="Resumen general"
         title="Dashboard"
-        description="Monitoreo general de la piscigranja y sus variables operativas."
+        :description="$account->isHome() ? 'Monitoreo de tu pecera, dispositivos, lecturas y alertas.' : 'Monitoreo general de la piscigranja y sus variables operativas.'"
     />
+
+    @if ($plan)
+        <section class="mb-8 surface-card p-5 sm:p-6" aria-label="Plan actual">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-slate-400">Plan actual</p>
+                    <h2 class="mt-1 text-xl font-extrabold tracking-tight text-slate-950">{{ $plan->name }}</h2>
+                </div>
+            </div>
+            <dl class="mt-5 grid gap-4 sm:grid-cols-3">
+                <div class="rounded-2xl bg-slate-50 px-4 py-3">
+                    <dt class="text-xs font-semibold text-slate-500">{{ $account->unitsLabel() }}</dt>
+                    <dd class="mt-1 text-lg font-extrabold text-slate-950">{{ $usage['units']['current'] }} / {{ $usage['units']['max'] }}</dd>
+                </div>
+                <div class="rounded-2xl bg-slate-50 px-4 py-3">
+                    <dt class="text-xs font-semibold text-slate-500">Dispositivos</dt>
+                    <dd class="mt-1 text-lg font-extrabold text-slate-950">{{ $usage['devices']['current'] }} / {{ $usage['devices']['max'] }}</dd>
+                </div>
+                <div class="rounded-2xl bg-slate-50 px-4 py-3">
+                    <dt class="text-xs font-semibold text-slate-500">Usuarios</dt>
+                    <dd class="mt-1 text-lg font-extrabold text-slate-950">{{ $usage['users']['current'] }} / {{ $usage['users']['max'] }}</dd>
+                </div>
+            </dl>
+        </section>
+    @endif
 
     <section class="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4" aria-label="Indicadores generales">
         <article class="surface-card group p-5 transition hover:-translate-y-0.5 hover:shadow-md">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <p class="text-sm font-semibold text-slate-500">Estanques</p>
+                    <p class="text-sm font-semibold text-slate-500">{{ $account->unitsLabel() }}</p>
                     <p class="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">{{ $pondCount }}</p>
-                    <p class="mt-1 text-xs text-slate-400">Unidades de producción</p>
+                    <p class="mt-1 text-xs text-slate-400">{{ $account->isHome() ? 'Tu pecera' : 'Unidades de producción' }}</p>
                 </div>
                 <span class="grid size-11 place-items-center rounded-xl bg-cyan-50 text-cyan-700">
                     <svg class="size-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -78,7 +103,7 @@
     <section class="mt-8">
         <div class="mb-4 flex items-end justify-between gap-4">
             <div>
-                <h2 class="text-lg font-extrabold tracking-tight text-slate-900">Estado de los estanques</h2>
+                <h2 class="text-lg font-extrabold tracking-tight text-slate-900">{{ $account->isHome() ? 'Mi pecera' : 'Estado de los estanques' }}</h2>
                 <p class="mt-1 text-sm text-slate-500">Vista rápida de las unidades bajo monitoreo.</p>
             </div>
             <a href="{{ route('ponds.index') }}" class="hidden text-sm font-bold text-cyan-700 hover:text-cyan-900 sm:inline">Ver todos</a>
@@ -105,10 +130,10 @@
             </div>
         @else
             <div class="surface-card">
-                <x-empty-state title="Sin estanques registrados" description="Cuando registres tu primera unidad aparecerá aquí su estado operativo.">
+                <x-empty-state :title="$account->isHome() ? 'Sin pecera registrada' : 'Sin estanques registrados'" :description="$account->isHome() ? 'Cuando registres tu pecera aparecerá aquí su estado.' : 'Cuando registres tu primera unidad aparecerá aquí su estado operativo.'">
                     @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
                         <x-slot:action>
-                            <a href="{{ route('ponds.create') }}" class="btn-primary">Registrar estanque</a>
+                            <a href="{{ route('ponds.create') }}" class="btn-primary">{{ $account->isHome() ? 'Registrar pecera' : 'Registrar estanque' }}</a>
                         </x-slot:action>
                     @endif
                 </x-empty-state>
@@ -130,7 +155,7 @@
                     <table class="min-w-[52rem] w-full text-sm">
                         <thead class="table-head">
                             <tr>
-                                <th class="px-6 py-3.5">Estanque / sensor</th>
+                                <th class="px-6 py-3.5">{{ $account->unitLabel() }} / sensor</th>
                                 <th class="px-4 py-3.5">Temperatura</th>
                                 <th class="px-4 py-3.5">pH</th>
                                 <th class="px-4 py-3.5">Turbidez</th>

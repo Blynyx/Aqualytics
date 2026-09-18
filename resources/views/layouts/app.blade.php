@@ -14,6 +14,7 @@
                 'supervisor' => 'Supervisor',
                 'specialist' => 'Especialista',
             ][auth()->user()->role] ?? auth()->user()->role;
+            $account = auth()->user()->fishFarm;
         @endphp
 
         <div class="min-h-screen">
@@ -43,9 +44,9 @@
                                 <path d="M4 8c0-2.2 3.6-4 8-4s8 1.8 8 4-3.6 4-8 4-8-1.8-8-4Z" stroke="currentColor" stroke-width="1.7"/>
                                 <path d="M4 8v8c0 2.2 3.6 4 8 4s8-1.8 8-4V8M4 12c0 2.2 3.6 4 8 4s8-1.8 8-4" stroke="currentColor" stroke-width="1.7"/>
                             </svg>
-                            Estanques
+                            {{ $account->unitsLabel() }}
                         </a>
-                        @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
+                        @if ($account->isFarm() && auth()->user()->role === \App\Models\User::ROLE_ADMIN)
                             <a href="{{ route('users.index') }}" class="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition {{ request()->routeIs('users.*') ? 'bg-cyan-500/15 text-cyan-300' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
                                 <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                     <path d="M16 20v-1.5c0-2-1.8-3.5-4-3.5H7c-2.2 0-4 1.5-4 3.5V20M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7-1a3 3 0 0 0 0-5.8M17 14c2.2 0 4 1.5 4 3.5V19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>

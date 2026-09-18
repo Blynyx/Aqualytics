@@ -12,6 +12,10 @@ class Pond extends Model
 {
     use HasFactory;
 
+    public const TYPE_AQUARIUM = 'aquarium';
+
+    public const TYPE_POND = 'pond';
+
     protected $fillable = [
         'fish_farm_id',
         'user_id',
@@ -20,6 +24,7 @@ class Pond extends Model
         'species',
         'location',
         'status',
+        'unit_type',
     ];
 
     protected static function booted(): void
