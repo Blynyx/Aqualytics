@@ -188,12 +188,16 @@ class IoTSimulatorTest extends TestCase
             return new ReadingIngestionService($app->make(AlertEvaluationService::class));
         });
 
+        $token = $device->issueToken();
+
         $this->postJson('/api/readings', [
             'device_uid' => $device->device_uid,
             'temperature' => 25.6,
             'ph' => 5.8,
             'turbidity' => 34.5,
             'water_level' => 82.0,
+        ], [
+            'X-Device-Token' => $token,
         ])->assertCreated();
 
         $this->assertTrue($resolved);

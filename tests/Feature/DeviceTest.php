@@ -27,6 +27,8 @@ class DeviceTest extends TestCase
             ]);
 
         $response->assertRedirect();
+        $response->assertSessionHas('device_token');
+        $response->assertSessionHas('issued_device_uid', 'ESP32-001');
 
         $this->assertDatabaseHas('devices', [
             'pond_id' => $pond->id,
@@ -34,6 +36,8 @@ class DeviceTest extends TestCase
             'device_uid' => 'ESP32-001',
             'status' => 'active',
         ]);
+        $this->assertNotNull($pond->devices()->first()?->api_token_hash);
+        $this->assertNotSame(session('device_token'), $pond->devices()->first()?->api_token_hash);
     }
 
     public function test_device_uid_is_required(): void

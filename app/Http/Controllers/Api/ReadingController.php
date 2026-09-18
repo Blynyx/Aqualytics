@@ -15,21 +15,31 @@ class ReadingController extends Controller
         ReadingIngestionService $readingIngestionService,
     ): JsonResponse
     {
-        $validated = $request->validate([
+        $identity = $request->validate([
             'device_uid' => ['required', 'string', 'exists:devices,device_uid'],
+        ]);
+
+        $device = Device::where('device_uid', $identity['device_uid'])->firstOrFail();
+
+        if (! $device->tokenMatches($request->header('X-Device-Token'))) {
+            return response()->json([
+                'message' => 'Dispositivo no autorizado.',
+            ], 401);
+        }
+
+        $validated = $request->validate([
             'temperature' => ['required', 'numeric', 'between:0,60'],
             'ph' => ['required', 'numeric', 'between:0,14'],
             'turbidity' => ['required', 'numeric', 'min:0'],
             'water_level' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $device = Device::where('device_uid', $validated['device_uid'])->firstOrFail();
-
         $result = $readingIngestionService->ingest($device, $validated);
+        $reading = $result->reading->withoutRelations();
 
         return response()->json([
             'message' => 'Lectura registrada correctamente',
-            'data' => $result->reading,
+            'data' => $reading,
         ], 201);
     }
 }

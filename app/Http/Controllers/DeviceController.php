@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Device;
 use App\Models\Pond;
 use App\Services\SubscriptionLimitService;
 use Illuminate\Http\RedirectResponse;
@@ -61,12 +62,39 @@ class DeviceController extends Controller
             ]);
         }
 
-        $pond->devices()->create([
+        $device = $pond->devices()->create([
             'name' => $validated['name'],
             'device_uid' => $validated['device_uid'],
             'status' => 'active',
         ]);
 
-        return redirect($nestedUnderPond ? "/ponds/{$pond->id}" : '/ponds');
+        return $this->redirectWithIssuedToken(
+            $device,
+            $nestedUnderPond ? "/ponds/{$pond->id}" : '/ponds',
+        );
+    }
+
+    public function regenerateToken(Request $request, Device $device): RedirectResponse
+    {
+        $device->loadMissing('pond');
+
+        abort_unless(
+            $device->pond?->fish_farm_id === $request->user()->fish_farm_id,
+            404,
+        );
+
+        return $this->redirectWithIssuedToken(
+            $device,
+            "/ponds/{$device->pond_id}",
+        );
+    }
+
+    private function redirectWithIssuedToken(Device $device, string $url): RedirectResponse
+    {
+        $token = $device->issueToken();
+
+        return redirect($url)
+            ->with('device_token', $token)
+            ->with('issued_device_uid', $device->device_uid);
     }
 }

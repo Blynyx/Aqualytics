@@ -22,6 +22,7 @@ class ReadingApiTest extends TestCase
             'device_uid' => 'ESP32-001',
             'status' => 'active',
         ]);
+        $token = $device->issueToken();
 
         $response = $this->postJson('/api/readings', [
             'device_uid' => 'ESP32-001',
@@ -29,6 +30,8 @@ class ReadingApiTest extends TestCase
             'ph' => 7.2,
             'turbidity' => 34.5,
             'water_level' => 82.0,
+        ], [
+            'X-Device-Token' => $token,
         ]);
 
         $response->assertStatus(201);
@@ -55,11 +58,12 @@ class ReadingApiTest extends TestCase
             'name' => 'Estanque 01',
             'code' => 'EST-001',
         ]);
-        $pond->devices()->create([
+        $device = $pond->devices()->create([
             'name' => 'ESP32 Estanque 01',
             'device_uid' => 'ESP32-001',
             'status' => 'active',
         ]);
+        $token = $device->issueToken();
 
         $response = $this->postJson('/api/readings', [
             'device_uid' => 'ESP32-001',
@@ -67,6 +71,8 @@ class ReadingApiTest extends TestCase
             'ph' => 18,
             'turbidity' => 30,
             'water_level' => 80,
+        ], [
+            'X-Device-Token' => $token,
         ]);
 
         $response->assertStatus(422);
@@ -81,17 +87,20 @@ class ReadingApiTest extends TestCase
             'name' => 'Estanque 01',
             'code' => 'EST-001',
         ]);
-        $pond->devices()->create([
+        $device = $pond->devices()->create([
             'name' => 'ESP32 Estanque 01',
             'device_uid' => 'ESP32-001',
             'status' => 'active',
         ]);
+        $token = $device->issueToken();
 
         $response = $this->postJson('/api/readings', [
             'device_uid' => 'ESP32-001',
             'ph' => 7.2,
             'turbidity' => 30,
             'water_level' => 80,
+        ], [
+            'X-Device-Token' => $token,
         ]);
 
         $response->assertStatus(422);
@@ -121,11 +130,12 @@ class ReadingApiTest extends TestCase
             'name' => 'Estanque 01',
             'code' => 'EST-001',
         ]);
-        $pond->devices()->create([
+        $device = $pond->devices()->create([
             'name' => 'ESP32 Estanque 01',
             'device_uid' => 'ESP32-001',
             'status' => 'active',
         ]);
+        $token = $device->issueToken();
 
         $response = $this->postJson('/api/readings', [
             'device_uid' => 'ESP32-001',
@@ -133,6 +143,8 @@ class ReadingApiTest extends TestCase
             'ph' => 7.2,
             'turbidity' => -1,
             'water_level' => -10,
+        ], [
+            'X-Device-Token' => $token,
         ]);
 
         $response->assertStatus(422);

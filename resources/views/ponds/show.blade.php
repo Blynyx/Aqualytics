@@ -249,6 +249,20 @@
                                 <p class="text-xs text-slate-400">Última conexión</p>
                                 <p class="mt-1 text-sm font-semibold text-slate-600">{{ $device->last_seen_at ?: 'Sin conexión registrada' }}</p>
                             </div>
+                            @if (auth()->user()->role === \App\Models\User::ROLE_ADMIN)
+                                <form
+                                    method="POST"
+                                    action="{{ route('devices.regenerate-token', $device) }}"
+                                    class="mt-4 border-t border-slate-200 pt-4"
+                                    onsubmit="return confirm('¿Regenerar la clave de este dispositivo? El token anterior dejará de funcionar.');"
+                                >
+                                    @csrf
+                                    <p class="text-xs text-slate-500">Si perdiste la clave, genera una nueva. El token anterior quedará inválido.</p>
+                                    <button type="submit" data-cy="regenerate-device-token" class="mt-3 inline-flex min-h-11 items-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">
+                                        Regenerar clave
+                                    </button>
+                                </form>
+                            @endif
                         </article>
                     @endforeach
                 </div>

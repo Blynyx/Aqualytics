@@ -113,6 +113,12 @@
                 </header>
 
                 <main class="mx-auto w-full max-w-[100rem] px-4 py-7 sm:px-6 lg:px-8 lg:py-9">
+                    @if (session()->has('device_token'))
+                        <x-device-token-issued
+                            :token="session('device_token')"
+                            :device-uid="session('issued_device_uid')"
+                        />
+                    @endif
                     @yield('content')
                 </main>
             </div>

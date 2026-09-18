@@ -11,6 +11,8 @@ class AlertGenerationTest extends TestCase
 {
     use RefreshDatabase;
 
+    private ?string $deviceToken = null;
+
     public function test_alert_is_created_when_ph_is_below_configured_minimum(): void
     {
         [$pond, $device] = $this->createDevice([
@@ -18,9 +20,7 @@ class AlertGenerationTest extends TestCase
             'ph_max' => 9,
         ]);
 
-        $response = $this->postJson('/api/readings', $this->readingPayload([
-            'ph' => 5.8,
-        ]));
+        $response = $this->postAuthenticatedReading(['ph' => 5.8]);
 
         $response->assertStatus(201);
 
@@ -48,9 +48,7 @@ class AlertGenerationTest extends TestCase
             'temperature_max' => 32,
         ]);
 
-        $response = $this->postJson('/api/readings', $this->readingPayload([
-            'temperature' => 35,
-        ]));
+        $response = $this->postAuthenticatedReading(['temperature' => 35]);
 
         $response->assertStatus(201);
 
@@ -73,9 +71,7 @@ class AlertGenerationTest extends TestCase
             'turbidity_max' => 100,
         ]);
 
-        $response = $this->postJson('/api/readings', $this->readingPayload([
-            'turbidity' => 120,
-        ]));
+        $response = $this->postAuthenticatedReading(['turbidity' => 120]);
 
         $response->assertStatus(201);
 
@@ -104,7 +100,7 @@ class AlertGenerationTest extends TestCase
             'water_level_max' => 100,
         ]);
 
-        $response = $this->postJson('/api/readings', $this->readingPayload());
+        $response = $this->postAuthenticatedReading();
 
         $response->assertStatus(201);
         $this->assertDatabaseHas('readings', [
@@ -120,9 +116,7 @@ class AlertGenerationTest extends TestCase
             'ph_max' => 9,
         ]);
 
-        $response = $this->postJson('/api/readings', $this->readingPayload([
-            'ph' => 5.8,
-        ]));
+        $response = $this->postAuthenticatedReading(['ph' => 5.8]);
 
         $response->assertStatus(201);
         $this->assertDatabaseHas('readings', [
@@ -141,7 +135,7 @@ class AlertGenerationTest extends TestCase
     {
         [, $device] = $this->createDevice();
 
-        $response = $this->postJson('/api/readings', $this->readingPayload());
+        $response = $this->postAuthenticatedReading();
 
         $response->assertStatus(201);
         $this->assertDatabaseHas('readings', [
@@ -162,12 +156,20 @@ class AlertGenerationTest extends TestCase
             'device_uid' => 'ESP32-001',
             'status' => 'active',
         ]);
+        $this->deviceToken = $device->issueToken();
 
         if ($thresholds !== null) {
             $pond->threshold()->create($thresholds);
         }
 
         return [$pond, $device];
+    }
+
+    private function postAuthenticatedReading(array $overrides = [])
+    {
+        return $this->postJson('/api/readings', $this->readingPayload($overrides), [
+            'X-Device-Token' => $this->deviceToken,
+        ]);
     }
 
     private function readingPayload(array $overrides = []): array

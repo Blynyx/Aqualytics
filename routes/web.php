@@ -52,6 +52,9 @@ Route::post('/ponds/{pond}/thresholds', [PondThresholdController::class, 'store'
     ->name('ponds.thresholds.store');
 Route::post('/devices', [DeviceController::class, 'store'])
     ->middleware(['auth', 'role:admin']);
+Route::post('/devices/{device}/regenerate-token', [DeviceController::class, 'regenerateToken'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('devices.regenerate-token');
 Route::post('/alerts/{alert}/assign', [AlertController::class, 'assign'])
     ->middleware('auth')
     ->name('alerts.assign');
