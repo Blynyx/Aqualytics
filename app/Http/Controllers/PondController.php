@@ -77,9 +77,18 @@ class PondController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $fishFarmId = $request->user()->fish_farm_id;
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:255', Rule::unique('ponds', 'code')],
+            'code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('ponds', 'code')->where(
+                    fn ($query) => $query->where('fish_farm_id', $fishFarmId)
+                ),
+            ],
             'species' => ['nullable', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],
         ]);
