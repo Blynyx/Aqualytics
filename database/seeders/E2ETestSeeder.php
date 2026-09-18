@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 class E2ETestSeeder extends Seeder
 {
+    /**
+     * Controlled E2E data for Cypress and Dusk. Do not use in production.
+     */
     public function run(): void
     {
         DB::transaction(function (): void {

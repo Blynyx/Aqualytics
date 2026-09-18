@@ -1,9 +1,9 @@
 *.log
 .DS_Store
 .env
-.env.dusk.local
-.env.backup
-.env.production
+.env.*
+!.env.example
+!.env.dusk.local.example
 .phpactor.json
 .phpunit.result.cache
 /.fleet
