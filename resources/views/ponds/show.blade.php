@@ -476,6 +476,51 @@
                     </div>
 
                     @if (
+                        $alert->incident === null
+                        && in_array(auth()->user()->role, [
+                            \App\Models\User::ROLE_ADMIN,
+                            \App\Models\User::ROLE_SUPERVISOR,
+                        ], true)
+                    )
+                        <form method="POST" action="{{ route('incidents.store', $alert) }}" data-cy="create-incident-form" class="border-t {{ $isAssigned ? 'border-blue-200/70' : 'border-amber-200/70' }} bg-white/65 p-5 sm:p-6">
+                            @csrf
+                            <div class="mb-4">
+                                <h4 class="font-extrabold text-slate-900">Abrir incidencia gestionable</h4>
+                                <p class="mt-1 text-sm text-slate-500">Convierte esta alerta IoT en una incidencia para asignar y documentar la solución.</p>
+                            </div>
+                            <div class="grid gap-4">
+                                <div>
+                                    <label for="incident_title_{{ $alert->id }}" class="form-label">Título</label>
+                                    <input id="incident_title_{{ $alert->id }}" name="title" data-cy="incident-title" required
+                                        value="{{ old('title', $alert->message) }}" class="form-control">
+                                    @error('title')
+                                        <p class="form-error"><span aria-hidden="true">●</span>{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="incident_description_{{ $alert->id }}" class="form-label">Descripción</label>
+                                    <textarea id="incident_description_{{ $alert->id }}" name="description" data-cy="incident-description" rows="3" required
+                                        class="form-control resize-y">{{ old('description', 'Alerta automática de '.$alert->parameter.' con valor '.$alert->value.'.') }}</textarea>
+                                    @error('description')
+                                        <p class="form-error"><span aria-hidden="true">●</span>{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-end">
+                                <button type="submit" data-cy="create-incident" class="btn-primary">
+                                    Crear incidencia
+                                </button>
+                            </div>
+                        </form>
+                    @elseif ($alert->incident)
+                        <div class="border-t {{ $isAssigned ? 'border-blue-200/70' : 'border-amber-200/70' }} bg-white/65 px-5 py-4 sm:px-6">
+                            <a href="{{ route('incidents.show', $alert->incident) }}" data-cy="open-incident" class="text-sm font-bold text-cyan-700 hover:text-cyan-900">
+                                Ver incidencia #{{ $alert->incident->id }}
+                            </a>
+                        </div>
+                    @endif
+
+                    @if (
                         $alert->status === 'active'
                         && in_array(auth()->user()->role, [
                             \App\Models\User::ROLE_ADMIN,

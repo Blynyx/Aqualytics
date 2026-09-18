@@ -49,7 +49,7 @@ class PondController extends Controller
             ->get();
 
         $activeAlerts = $pond->alerts()
-            ->with('assignedTo')
+            ->with(['assignedTo', 'incident'])
             ->whereIn('status', ['active', 'assigned'])
             ->latest('detected_at')
             ->get();

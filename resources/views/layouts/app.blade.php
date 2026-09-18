@@ -47,6 +47,12 @@
                             </svg>
                             {{ $account->unitsLabel() }}
                         </a>
+                        <a href="{{ route('incidents.index') }}" data-cy="nav-incidents" class="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition {{ request()->routeIs('incidents.*') ? 'bg-cyan-500/15 text-cyan-300' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                            <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 8v5m0 3h.01M10.3 4.8 3.2 17.1A2 2 0 0 0 4.9 20h14.2a2 2 0 0 0 1.7-2.9L13.7 4.8a2 2 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                            </svg>
+                            Incidencias
+                        </a>
                         @if ($account->isFarm() && auth()->user()->role === \App\Models\User::ROLE_ADMIN)
                             <a href="{{ route('users.index') }}" class="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition {{ request()->routeIs('users.*') ? 'bg-cyan-500/15 text-cyan-300' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
                                 <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">

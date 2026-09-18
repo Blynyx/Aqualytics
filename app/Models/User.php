@@ -66,4 +66,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(FishFarm::class);
     }
+
+    public function createdIncidents(): HasMany
+    {
+        return $this->hasMany(Incident::class, 'created_by');
+    }
+
+    public function assignedIncidents(): HasMany
+    {
+        return $this->hasMany(Incident::class, 'assigned_to');
+    }
 }

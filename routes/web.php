@@ -4,6 +4,7 @@ use App\Http\Controllers\AlertController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\PondController;
 use App\Http\Controllers\PondReadingHistoryController;
 use App\Http\Controllers\PondThresholdController;
@@ -61,6 +62,16 @@ Route::post('/alerts/{alert}/assign', [AlertController::class, 'assign'])
 Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])
     ->middleware('auth')
     ->name('alerts.resolve');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/incidents', [IncidentController::class, 'index'])->name('incidents.index');
+    Route::get('/incidents/{incident}', [IncidentController::class, 'show'])->name('incidents.show');
+    Route::post('/alerts/{alert}/incidents', [IncidentController::class, 'store'])->name('incidents.store');
+    Route::post('/incidents/{incident}/assign', [IncidentController::class, 'assign'])->name('incidents.assign');
+    Route::post('/incidents/{incident}/start', [IncidentController::class, 'start'])->name('incidents.start');
+    Route::post('/incidents/{incident}/resolve', [IncidentController::class, 'resolve'])->name('incidents.resolve');
+    Route::post('/incidents/{incident}/close', [IncidentController::class, 'close'])->name('incidents.close');
+});
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

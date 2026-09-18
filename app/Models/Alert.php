@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Alert extends Model
 {
@@ -58,5 +59,10 @@ class Alert extends Model
     public function resolvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'resolved_by_user_id');
+    }
+
+    public function incident(): HasOne
+    {
+        return $this->hasOne(Incident::class);
     }
 }
