@@ -75,6 +75,21 @@ class E2ETestSeeder extends Seeder
                 'status' => 'active',
             ]);
 
+            foreach ([
+                [now()->subHours(6), 24.8, 7.1, 28.0, 80],
+                [now()->subHours(4), 25.1, 7.0, 30.2, 81],
+                [now()->subHours(2), 25.4, 6.8, 32.0, 81],
+            ] as [$recordedAt, $temperature, $ph, $turbidity, $waterLevel]) {
+                $device->readings()->create([
+                    'pond_id' => $pond->id,
+                    'temperature' => $temperature,
+                    'ph' => $ph,
+                    'turbidity' => $turbidity,
+                    'water_level' => $waterLevel,
+                    'recorded_at' => $recordedAt,
+                ]);
+            }
+
             $reading = $device->readings()->create([
                 'pond_id' => $pond->id,
                 'temperature' => 25.6,

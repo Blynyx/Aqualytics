@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pond;
 use App\Models\User;
+use App\Services\ReadingHistoryService;
 use App\Services\SubscriptionLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -67,6 +68,9 @@ class PondController extends Controller
             ->orderBy('name')
             ->get();
 
+        $history = app(ReadingHistoryService::class);
+        $allowedHistoryRanges = $history->allowedRanges($request->user()->fishFarm);
+
         return view('ponds.show', [
             'pond' => $pond,
             'latestReading' => $latestReadings->first(),
@@ -74,6 +78,7 @@ class PondController extends Controller
             'activeAlerts' => $activeAlerts,
             'resolvedAlerts' => $resolvedAlerts,
             'specialists' => $specialists,
+            'allowedHistoryRanges' => $allowedHistoryRanges,
         ]);
     }
 

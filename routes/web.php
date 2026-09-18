@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\PondController;
+use App\Http\Controllers\PondReadingHistoryController;
 use App\Http\Controllers\PondThresholdController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,9 @@ Route::get('/ponds/create', [PondController::class, 'create'])
 Route::get('/ponds/{pond}', [PondController::class, 'show'])
     ->middleware('auth')
     ->name('ponds.show');
+Route::get('/ponds/{pond}/readings/history', PondReadingHistoryController::class)
+    ->middleware('auth')
+    ->name('ponds.readings.history');
 Route::post('/ponds', [PondController::class, 'store'])
     ->middleware(['auth', 'role:admin']);
 Route::post('/ponds/{pond}/devices', [DeviceController::class, 'store'])

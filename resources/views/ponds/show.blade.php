@@ -126,6 +126,98 @@
         </div>
     </section>
 
+    @php
+        $isHomeAccount = auth()->user()->fishFarm->isHome();
+        $historyTitle = $isHomeAccount ? 'Historial de mi pecera' : 'Historial del estanque';
+        $historyThresholds = [
+            'temperature' => [
+                'min' => $pond->threshold?->temperature_min,
+                'max' => $pond->threshold?->temperature_max,
+                'unit' => '°C',
+            ],
+            'ph' => [
+                'min' => $pond->threshold?->ph_min,
+                'max' => $pond->threshold?->ph_max,
+                'unit' => '',
+            ],
+            'turbidity' => [
+                'min' => null,
+                'max' => $pond->threshold?->turbidity_max,
+                'unit' => 'NTU',
+            ],
+            'water_level' => [
+                'min' => $pond->threshold?->water_level_min,
+                'max' => $pond->threshold?->water_level_max,
+                'unit' => '%',
+            ],
+        ];
+        $historyRangeLabels = [
+            '24h' => 'Últimas 24 h',
+            '7d' => '7 días',
+            '30d' => '30 días',
+            '90d' => '90 días',
+        ];
+    @endphp
+
+    <section
+        class="surface-card mt-8 overflow-hidden"
+        aria-labelledby="parameter-history-title"
+        data-cy="parameter-history"
+        data-pond-history
+        data-history-url="{{ route('ponds.readings.history', $pond) }}"
+        data-thresholds="{{ json_encode($historyThresholds) }}"
+    >
+        <div class="flex flex-col gap-4 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Historial de parámetros</p>
+                <h2 id="parameter-history-title" class="mt-1 text-lg font-extrabold tracking-tight text-slate-900">{{ $historyTitle }}</h2>
+                <p class="mt-1 text-sm text-slate-500">Evolución temporal de temperatura, pH, turbidez y nivel del agua.</p>
+            </div>
+            <div class="flex flex-wrap gap-2" role="group" aria-label="Periodo del historial">
+                @foreach ($allowedHistoryRanges as $range)
+                    <button
+                        type="button"
+                        data-cy="history-range-{{ $range }}"
+                        data-history-range="{{ $range }}"
+                        class="rounded-xl border px-3 py-2 text-xs font-bold transition {{ $range === '24h' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50' }}"
+                    >
+                        {{ $historyRangeLabels[$range] }}
+                    </button>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="p-5 sm:p-6">
+            <p data-cy="history-status" data-history-status class="mb-4 hidden text-sm font-semibold text-slate-500"></p>
+            <p data-cy="history-empty" data-history-empty class="hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm font-semibold text-slate-500">
+                No hay lecturas disponibles para este periodo.
+            </p>
+            <p data-cy="history-error" data-history-error class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-8 text-center text-sm font-semibold text-red-700">
+                No se pudo cargar el historial.
+            </p>
+            <div data-history-charts class="grid gap-4 md:grid-cols-2">
+                @foreach ([
+                    ['key' => 'temperature', 'label' => 'Temperatura', 'unit' => '°C'],
+                    ['key' => 'ph', 'label' => 'pH', 'unit' => ''],
+                    ['key' => 'turbidity', 'label' => 'Turbidez', 'unit' => 'NTU'],
+                    ['key' => 'water_level', 'label' => 'Nivel del agua', 'unit' => '%'],
+                ] as $chart)
+                    <article class="rounded-2xl border border-slate-200 bg-white p-4">
+                        <div class="mb-3 flex items-baseline justify-between gap-3">
+                            <h3 class="text-sm font-extrabold text-slate-800">{{ $chart['label'] }}</h3>
+                            @if ($chart['unit'] !== '')
+                                <span class="text-xs font-bold text-slate-400">{{ $chart['unit'] }}</span>
+                            @endif
+                        </div>
+                        <div class="relative h-52">
+                            <canvas data-cy="history-chart-{{ str_replace('_', '-', $chart['key']) }}" data-history-chart="{{ $chart['key'] }}" aria-label="Gráfico de {{ $chart['label'] }}"></canvas>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
     <section class="surface-card mt-8 overflow-hidden" aria-labelledby="devices-title">
         <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
@@ -492,3 +584,7 @@
         @endif
     </section>
 @endsection
+
+@push('scripts')
+    @vite('resources/js/pond-history.js')
+@endpush

@@ -35,9 +35,11 @@ class DemoSeeder extends Seeder
                 'name' => 'Estanque Demo',
                 'unit_type' => Pond::TYPE_POND,
                 'status' => 'active',
+                'fish_farm_id' => $user->fish_farm_id,
             ],
         );
 
+        $this->ensureOwnedByAccount($pond, $user);
         $this->ensureThresholdsAndDevice($pond, 'DEMO-FARM-ESP32-001', 'ESP32 Demo Farm');
     }
 
@@ -64,10 +66,23 @@ class DemoSeeder extends Seeder
                 'name' => 'Pecera Demo',
                 'unit_type' => Pond::TYPE_AQUARIUM,
                 'status' => 'active',
+                'fish_farm_id' => $user->fish_farm_id,
             ],
         );
 
+        $this->ensureOwnedByAccount($pond, $user);
         $this->ensureThresholdsAndDevice($pond, 'DEMO-HOME-ESP32-001', 'ESP32 Demo Home');
+    }
+
+    private function ensureOwnedByAccount(Pond $pond, User $user): void
+    {
+        if ($pond->fish_farm_id === $user->fish_farm_id) {
+            return;
+        }
+
+        $pond->forceFill([
+            'fish_farm_id' => $user->fish_farm_id,
+        ])->save();
     }
 
     private function ensureThresholdsAndDevice(Pond $pond, string $deviceUid, string $deviceName): void
