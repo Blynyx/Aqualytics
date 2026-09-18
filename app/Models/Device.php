@@ -19,6 +19,13 @@ class Device extends Model
         'last_seen_at',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'last_seen_at' => 'datetime',
+        ];
+    }
+
     public function pond(): BelongsTo
     {
         return $this->belongsTo(Pond::class);
