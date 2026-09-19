@@ -2,11 +2,11 @@
 
 ## Estado
 
-PROPUESTO
+IMPLEMENTADO
 
 ## Versión
 
-0.1
+1.0
 
 ## Objetivo
 
@@ -32,15 +32,9 @@ No se crean tipos de cuenta ni roles adicionales.
 
 ## Contexto actual
 
-`DashboardController` entrega una vista general de la `FishFarm` del usuario autenticado:
+`GET /dashboard` permanece como única ruta. `DashboardController` delega en `DashboardDataService::forUser`. El shell Blade selecciona el partial según `dashboardContext` (`home`, `farm_admin`, `farm_supervisor`, `farm_specialist`).
 
-- recuentos de unidades, dispositivos, lecturas y alertas `active`;
-- listado de unidades;
-- últimas 10 lecturas;
-- hasta 10 alertas `active`;
-- plan y uso (`max_units`, `max_devices`, `max_users`).
-
-La vista distingue HOME/FARM principalmente por textos (`Pecera` / `Estanque`). Los roles Farm **comparten el mismo conjunto de datos**. SPEC-008 especializa consultas y bloques visuales sin cambiar permisos backend de SPEC-001 a SPEC-007.
+HOME ignora el rol almacenado. Farm especializa agregados por rol. Permisos backend de SPEC-001 a SPEC-007 no se relajan. No hay entidad `Dashboard` ni rutas `/dashboard/admin|supervisor|specialist`.
 
 ## Reglas de negocio
 
@@ -230,17 +224,17 @@ Alineación con el modelo de producto (QUALITY-001). **No** se afirma cumplimien
 
 Características aplicables: adecuación funcional, eficiencia de desempeño, capacidad de interacción, fiabilidad, seguridad, mantenibilidad, flexibilidad.
 
-**Adecuación funcional.** El contenido corresponde al objetivo de cada rol. Evidencia futura: Feature tests por `account_type` y `role`.
+**Adecuación funcional.** El contenido corresponde al objetivo de cada rol. Evidencia: `DashboardByRoleTest` (contextos `home`, `farm_admin`, `farm_supervisor`, `farm_specialist`) y `cypress/e2e/dashboard-by-role.cy.js`.
 
-**Eficiencia de desempeño.** No cargar historiales completos; listas con límites; evitar N+1 y consultas redundantes por tarjeta. Métricas futuras (sin umbrales inventados): número razonable de queries y tiempo local documentado cuando exista línea base.
+**Eficiencia de desempeño.** No se carga el historial completo; listas con límites centralizados; eager load en lecturas, alertas e incidencias. Línea base local observada (SQLite de PHPUnit, no contractual): HOME 13 queries; Farm admin 24; Farm supervisor 20; Farm specialist 11. Tiempo local aproximado 12–19 ms por `GET /dashboard` en ese entorno. Un test anti-N+1 comprueba que varias incidencias del especialista no añaden una query por fila.
 
-**Capacidad de interacción.** Información prioritaria visible; responsive; empty states; etiquetas HOME/FARM. Evidencia futura: Cypress y Dusk.
+**Capacidad de interacción.** Información prioritaria por partial; empty states; `data-cy` estables. Evidencia: Cypress (escritorio y viewport 375×667) y Dusk de regresión (login/dashboard admin).
 
-**Fiabilidad.** Cero readings, alerts, incidents o notifications no debe lanzar excepción. Evidencia: Feature tests y regresión.
+**Fiabilidad.** Cero readings, alerts, incidents o notifications no lanza excepción. Evidencia: Feature tests de empty states y regresión PHPUnit 162, Cypress 11, Dusk 3.
 
-**Seguridad.** Indicadores con `fish_farm_id` y reglas de rol. La UI no reemplaza autorización. Evidencia: tests de tenancy.
+**Seguridad.** Indicadores con `fish_farm_id` / pondIds del tenant y `assigned_to` en especialista. La UI no reemplaza autorización. Evidencia: tests de tenancy Farm A vs B y especialista A vs B.
 
-**Mantenibilidad.** No concentrar la lógica de consultas en Blade. Separar preparación de datos y vista. La clase concreta queda para PLAN-008.
+**Mantenibilidad.** `DashboardDataService` prepara datasets; `DashboardController` solo delega; Blade no consulta Eloquent.
 
 **Flexibilidad.** Una sola ruta `/dashboard` para HOME, Farm/admin, Farm/supervisor y Farm/specialist.
 
@@ -270,20 +264,23 @@ No se añaden controles 27001 ajenos a esta SPEC.
 | QUALITY-002 | matriz de trazabilidad |
 | SECURITY-001 | referencia ISO/IEC 27001:2022 |
 
-## Evidencias futuras de implementación
-
-Cuando se implemente (fuera de esta tarea):
-
-- Feature tests del dashboard por contexto/rol y tenancy;
-- Cypress (rol / responsive);
-- regresión PHPUnit, Cypress y Dusk;
-- `npm run build`;
-- revisión de consultas si corresponde.
-
-Sin porcentajes de calidad. Sin commit de producto en esta SPEC.
-
 ## Evidencia de implementación
 
-Pendiente. SPEC-008 no está implementada.
+Commit de producto: `a8fd6772fd5f1231b3c572c2c0c40bf6b5f023df` (`feat: implementar dashboard operativo por rol`).
+
+| Pieza | Ubicación |
+| --- | --- |
+| Servicio de lectura | `app/Services/DashboardDataService.php` (`forUser`) |
+| Controller | `app/Http/Controllers/DashboardController.php` |
+| Shell + partials | `resources/views/dashboard.blade.php`, `resources/views/dashboard/{home,farm-admin,farm-supervisor,farm-specialist}.blade.php` |
+| Feature tests | `tests/Feature/DashboardByRoleTest.php` (15 CA + anti-N+1 + línea base de queries) |
+| Cypress | `cypress/e2e/dashboard-by-role.cy.js` |
+| Seeder E2E | `database/seeders/E2ETestSeeder.php` (HOME, admin, supervisor, especialista A/B) |
+
+Regresión al cierre: `npm run build` OK; PHPUnit 162 passed; Cypress Electron 11/11 (aviso de deprecación de Electron 146, sin fallo); Dusk 3 passed.
+
+Línea base local de queries (`DB::enableQueryLog`, SQLite testing, no benchmark contractual): HOME 13; admin 24; supervisor 20; specialist 11. Tiempos locales aproximados 12–19 ms.
+
+Sin porcentajes de calidad. Sin certificación ISO/IEC 25010 ni 27001.
 
 Fuera de alcance: rutas por rol, IA, actuadores, pagos, `read-all`, polling, WebSockets, push, nuevos estados de alerta o incidencia.
