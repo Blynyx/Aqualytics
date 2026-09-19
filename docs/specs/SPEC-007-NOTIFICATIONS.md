@@ -41,9 +41,11 @@ Visitantes no autenticados no tienen bandeja.
 
 ## Modelo conceptual
 
-### Notification (propuesto)
+### InternalNotification
 
-Campos previstos:
+`Notification` es el concepto funcional de esta SPEC. En Laravel el modelo implementado es `InternalNotification` y la tabla real es `internal_notifications`.
+
+Campos:
 
 | Campo | Uso |
 | --- | --- |
@@ -56,7 +58,7 @@ Campos previstos:
 | `message` | Texto visible en bandeja |
 | `read_at` | Nulo si no leída |
 
-Relaciones previstas:
+Relaciones:
 
 ```
 FishFarm 1 ── * Notification
@@ -72,13 +74,13 @@ No forma parte de v0.1: plantillas, prioridad, canal, `broadcast`, adjuntos.
 ```
 Reading → Alert (SPEC-005)
     ↓  type = alert_created
-NotificationService
+InternalNotificationService
     ↓
 Filas para admin y supervisor de la cuenta
 
 Alert asignada (AlertController)     Incident asignada (SPEC-006)
     ↓  type = alert_assigned              ↓  type = incident_assigned
-NotificationService ──────────────────────┘
+InternalNotificationService ──────────────┘
     ↓
 Fila para el especialista asignado
     ↓
@@ -91,12 +93,12 @@ POST /notifications/{notification}/read
 read_at = now()
 ```
 
-Rutas web previstas (no implementadas):
+Rutas web implementadas:
 
 - `GET /notifications`
 - `POST /notifications/{notification}/read`
 
-La bandeja se consultará en la petición HTTP autenticada (layout). No hay Echo, polling dedicado ni workers.
+La bandeja se consulta en la petición HTTP autenticada (layout). No hay Echo, polling dedicado ni workers.
 
 ## Criterios de aceptación
 
