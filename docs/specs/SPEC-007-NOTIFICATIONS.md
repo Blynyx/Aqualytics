@@ -2,11 +2,11 @@
 
 ## Estado
 
-PROPUESTO
+IMPLEMENTADO
 
 ## Versión
 
-0.1
+1.0
 
 ## Objetivo
 
@@ -115,24 +115,26 @@ La bandeja se consultará en la petición HTTP autenticada (layout). No hay Echo
 
 ### Código relacionado
 
-Pendiente. No existe modelo `Notification`, migración, servicio, controlador, rutas ni vistas de bandeja.
-
-Referencias de origen que este módulo no debe modificar:
-
-- `app/Services/AlertEvaluationService.php`
-- `app/Http/Controllers/AlertController.php`
-- `app/Http/Controllers/IncidentController.php`
-- `app/Models/Alert.php`
-- `app/Models/Incident.php`
-- `app/Models/User.php` (el trait `Notifiable` del framework no equivale a este SPEC)
+- `app/Models/InternalNotification.php` — constantes de tipo/origen, scopes `unread()` y `latestFirst()`, resolución de enlace.
+- `database/migrations/2026_09_19_150000_create_internal_notifications_table.php`
+- `app/Services/InternalNotificationService.php` — destinatarios de `alert_created`, `alert_assigned` e `incident_assigned`.
+- `app/Http/Controllers/InternalNotificationController.php` — bandeja y marcar como leída.
+- `routes/web.php` — `GET /notifications`, `POST /notifications/{notification}/read`.
+- `resources/views/notifications/index.blade.php`
+- `resources/views/layouts/app.blade.php` — campana y contador del usuario autenticado.
+- `app/Providers/AppServiceProvider.php` — View Composer del contador.
+- Integraciones: `AlertEvaluationService::createAlert()`, `AlertController::assign()`, `IncidentController::assign()`.
+- `app/Models/User.php` y `app/Models/FishFarm.php` — `internalNotifications()`. El trait `Notifiable` permanece y no se usa para este módulo.
+- `database/seeders/E2ETestSeeder.php` — notificación determinista para Cypress.
 
 ### Tests relacionados
 
-Pendiente. Al implementar, cubrir como mínimo:
-
 - `tests/Feature/NotificationGenerationTest.php`
-- tenancy (`404` entre cuentas y entre destinatarios)
+- `tests/Feature/NotificationManagementTest.php`
+- `cypress/e2e/notifications.cy.js`
 
 ### Estado actual
 
-PROPUESTO. Sin código de producto. Fuera de alcance actual: email, SMS, push, Slack, WebSockets, colas asíncronas, preferencias, digest, SLA y escalamiento automático.
+Implementado en v0.1. Commit de producto: `5d4d50cecdac113cb89e3469d989b538cb1f230d`.
+
+Fuera de alcance actual: email, SMS, push, Slack, WhatsApp, WebSockets, colas asíncronas, preferencias, digest, agrupación, `read-all`, `delete`, SLA y escalamiento automático.
