@@ -60,9 +60,7 @@
                             <span class="flex min-w-0 flex-1 items-center justify-between gap-2">
                                 Notificaciones
                                 @if (($unreadNotificationsCount ?? 0) > 0)
-                                    <span data-cy="notification-unread-count" class="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-cyan-400 px-1.5 text-[0.65rem] font-extrabold text-slate-950">
-                                        {{ $unreadNotificationsCount }}
-                                    </span>
+                                    <span data-cy="notification-unread-count" class="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-cyan-400 px-1.5 text-[0.65rem] font-extrabold text-slate-950">{{ $unreadNotificationsCount }}</span>
                                 @endif
                             </span>
                         </a>

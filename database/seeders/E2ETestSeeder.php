@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\FishFarm;
+use App\Models\Incident;
 use App\Models\InternalNotification;
+use App\Models\Pond;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -21,10 +23,17 @@ class E2ETestSeeder extends Seeder
                 ->each
                 ->delete();
 
+            FishFarm::where('name', 'Cuenta Home Cypress')
+                ->get()
+                ->each
+                ->delete();
+
             User::whereIn('email', [
                 'admin@cypress.test',
                 'supervisor@cypress.test',
                 'specialist@cypress.test',
+                'specialist-b@cypress.test',
+                'home@cypress.test',
             ])->get()->each->delete();
 
             $fishFarm = FishFarm::create([
@@ -48,9 +57,16 @@ class E2ETestSeeder extends Seeder
                 'role' => User::ROLE_SUPERVISOR,
             ]);
 
-            $fishFarm->users()->create([
+            $specialist = $fishFarm->users()->create([
                 'name' => 'Especialista Cypress',
                 'email' => 'specialist@cypress.test',
+                'password' => 'password123',
+                'role' => User::ROLE_SPECIALIST,
+            ]);
+
+            $specialistB = $fishFarm->users()->create([
+                'name' => 'Especialista Cypress B',
+                'email' => 'specialist-b@cypress.test',
                 'password' => 'password123',
                 'role' => User::ROLE_SPECIALIST,
             ]);
@@ -62,7 +78,7 @@ class E2ETestSeeder extends Seeder
                 'species' => 'Tilapia',
                 'location' => 'Zona de pruebas',
                 'status' => 'active',
-                'unit_type' => \App\Models\Pond::TYPE_POND,
+                'unit_type' => Pond::TYPE_POND,
             ]);
 
             $pond->threshold()->create([
@@ -126,6 +142,128 @@ class E2ETestSeeder extends Seeder
                         'message' => 'pH por debajo del rango configurado en Estanque Cypress.',
                     ]);
                 });
+
+            $workPond = $fishFarm->ponds()->create([
+                'user_id' => $admin->id,
+                'name' => 'Estanque Especialista',
+                'code' => 'CYP-002',
+                'species' => 'Tilapia',
+                'location' => 'Zona de especialistas',
+                'status' => 'active',
+                'unit_type' => Pond::TYPE_POND,
+            ]);
+
+            $workDevice = $workPond->devices()->create([
+                'name' => 'ESP32 Especialista',
+                'device_uid' => 'CYP-ESP32-002',
+                'status' => 'active',
+            ]);
+
+            $this->seedAssignedIncident(
+                $fishFarm,
+                $admin,
+                $workPond,
+                $workDevice,
+                $specialist,
+                'Incidencia del especialista A',
+                5.7,
+            );
+            $this->seedAssignedIncident(
+                $fishFarm,
+                $admin,
+                $workPond,
+                $workDevice,
+                $specialistB,
+                'Incidencia del especialista B',
+                5.6,
+            );
+
+            $home = FishFarm::create([
+                'name' => 'Cuenta Home Cypress',
+                'status' => 'active',
+                'account_type' => FishFarm::TYPE_HOME,
+            ]);
+            $home->assignDefaultSubscription();
+
+            $homeOwner = $home->users()->create([
+                'name' => 'Propietario Home Cypress',
+                'email' => 'home@cypress.test',
+                'password' => 'password123',
+                'role' => User::ROLE_ADMIN,
+            ]);
+
+            $aquarium = $home->ponds()->create([
+                'user_id' => $homeOwner->id,
+                'name' => 'Pecera Cypress',
+                'code' => 'HOM-001',
+                'species' => 'Guppy',
+                'location' => 'Sala',
+                'status' => 'active',
+                'unit_type' => Pond::TYPE_AQUARIUM,
+            ]);
+
+            $aquarium->threshold()->create([
+                'ph_min' => 6.5,
+                'ph_max' => 8,
+                'temperature_min' => 22,
+                'temperature_max' => 28,
+            ]);
+
+            $homeDevice = $aquarium->devices()->create([
+                'name' => 'ESP32 Home',
+                'device_uid' => 'HOM-ESP32-001',
+                'status' => 'active',
+            ]);
+
+            $homeDevice->readings()->create([
+                'pond_id' => $aquarium->id,
+                'temperature' => 24.5,
+                'ph' => 7.2,
+                'turbidity' => 12.0,
+                'water_level' => 90,
+                'recorded_at' => now(),
+            ]);
         });
+    }
+
+    private function seedAssignedIncident(
+        FishFarm $fishFarm,
+        User $creator,
+        Pond $pond,
+        $device,
+        User $assignee,
+        string $title,
+        float $ph,
+    ): void {
+        $reading = $device->readings()->create([
+            'pond_id' => $pond->id,
+            'temperature' => 25.2,
+            'ph' => $ph,
+            'turbidity' => 30.0,
+            'water_level' => 80,
+            'recorded_at' => now(),
+        ]);
+
+        $alert = $reading->alerts()->create([
+            'pond_id' => $pond->id,
+            'device_id' => $device->id,
+            'parameter' => 'ph',
+            'value' => $ph,
+            'min_threshold' => 6.5,
+            'severity' => 'warning',
+            'status' => 'assigned',
+            'message' => 'Alerta de '.$title,
+            'detected_at' => now(),
+        ]);
+
+        Incident::query()->create([
+            'alert_id' => $alert->id,
+            'fish_farm_id' => $fishFarm->id,
+            'created_by' => $creator->id,
+            'assigned_to' => $assignee->id,
+            'title' => $title,
+            'description' => 'Trabajo asignado para Cypress.',
+            'status' => Incident::STATUS_ASSIGNED,
+        ]);
     }
 }
