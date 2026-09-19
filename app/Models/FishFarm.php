@@ -41,6 +41,11 @@ class FishFarm extends Model
         return $this->hasMany(Incident::class);
     }
 
+    public function internalNotifications(): HasMany
+    {
+        return $this->hasMany(InternalNotification::class);
+    }
+
     public function isHome(): bool
     {
         return $this->account_type === self::TYPE_HOME;

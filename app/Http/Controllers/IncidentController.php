@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alert;
 use App\Models\Incident;
 use App\Models\User;
+use App\Services\InternalNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -73,8 +74,11 @@ class IncidentController extends Controller
         return redirect()->route('incidents.show', $incident);
     }
 
-    public function assign(Request $request, Incident $incident): RedirectResponse
-    {
+    public function assign(
+        Request $request,
+        Incident $incident,
+        InternalNotificationService $internalNotificationService,
+    ): RedirectResponse {
         $this->ensureSameFarm($request, $incident->fish_farm_id);
         $this->ensureCanManage($request);
 
@@ -89,10 +93,14 @@ class IncidentController extends Controller
             ],
         ]);
 
+        $specialist = User::query()->findOrFail($validated['specialist_id']);
+
         $incident->update([
-            'assigned_to' => $validated['specialist_id'],
+            'assigned_to' => $specialist->id,
             'status' => Incident::STATUS_ASSIGNED,
         ]);
+
+        $internalNotificationService->notifyIncidentAssigned($incident, $specialist);
 
         return redirect()->route('incidents.show', $incident);
     }

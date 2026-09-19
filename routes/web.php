@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\IncidentController;
+use App\Http\Controllers\InternalNotificationController;
 use App\Http\Controllers\PondController;
 use App\Http\Controllers\PondReadingHistoryController;
 use App\Http\Controllers\PondThresholdController;
@@ -64,6 +65,9 @@ Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])
     ->name('alerts.resolve');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [InternalNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [InternalNotificationController::class, 'markAsRead'])
+        ->name('notifications.read');
     Route::get('/incidents', [IncidentController::class, 'index'])->name('incidents.index');
     Route::get('/incidents/{incident}', [IncidentController::class, 'show'])->name('incidents.show');
     Route::post('/alerts/{alert}/incidents', [IncidentController::class, 'store'])->name('incidents.store');

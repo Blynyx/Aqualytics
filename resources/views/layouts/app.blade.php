@@ -53,6 +53,19 @@
                             </svg>
                             Incidencias
                         </a>
+                        <a href="{{ route('notifications.index') }}" data-cy="nav-notifications" class="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition {{ request()->routeIs('notifications.*') ? 'bg-cyan-500/15 text-cyan-300' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                            <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 1 1-6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="flex min-w-0 flex-1 items-center justify-between gap-2">
+                                Notificaciones
+                                @if (($unreadNotificationsCount ?? 0) > 0)
+                                    <span data-cy="notification-unread-count" class="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-cyan-400 px-1.5 text-[0.65rem] font-extrabold text-slate-950">
+                                        {{ $unreadNotificationsCount }}
+                                    </span>
+                                @endif
+                            </span>
+                        </a>
                         @if ($account->isFarm() && auth()->user()->role === \App\Models\User::ROLE_ADMIN)
                             <a href="{{ route('users.index') }}" class="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition {{ request()->routeIs('users.*') ? 'bg-cyan-500/15 text-cyan-300' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
                                 <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -107,6 +120,16 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
+                            <a href="{{ route('notifications.index') }}" class="relative grid size-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50" aria-label="Notificaciones">
+                                <svg class="size-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 1 1-6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                @if (($unreadNotificationsCount ?? 0) > 0)
+                                    <span class="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-cyan-500 px-1 text-[0.65rem] font-extrabold text-white">
+                                        {{ $unreadNotificationsCount }}
+                                    </span>
+                                @endif
+                            </a>
                             <span class="hidden items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 sm:inline-flex">
                                 <span class="size-2 rounded-full bg-emerald-500"></span>
                                 Sistema operativo

@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Alert;
 use App\Models\User;
+use App\Services\InternalNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class AlertController extends Controller
 {
-    public function assign(Request $request, Alert $alert): RedirectResponse
-    {
+    public function assign(
+        Request $request,
+        Alert $alert,
+        InternalNotificationService $internalNotificationService,
+    ): RedirectResponse {
         abort_unless(
             $alert->pond->fish_farm_id === $request->user()->fish_farm_id,
             404,
@@ -36,12 +40,16 @@ class AlertController extends Controller
             ],
         ]);
 
+        $specialist = User::query()->findOrFail($validated['specialist_id']);
+
         $alert->update([
-            'assigned_to_user_id' => $validated['specialist_id'],
+            'assigned_to_user_id' => $specialist->id,
             'reported_by_user_id' => $request->user()->id,
             'assigned_at' => now(),
             'status' => 'assigned',
         ]);
+
+        $internalNotificationService->notifyAlertAssigned($alert, $specialist);
 
         return redirect("/ponds/{$alert->pond_id}");
     }

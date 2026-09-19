@@ -76,4 +76,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Incident::class, 'assigned_to');
     }
+
+    public function internalNotifications(): HasMany
+    {
+        return $this->hasMany(InternalNotification::class);
+    }
 }

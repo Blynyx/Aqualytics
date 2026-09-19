@@ -6,6 +6,10 @@ use App\Models\Reading;
 
 class AlertEvaluationService
 {
+    public function __construct(
+        private InternalNotificationService $internalNotificationService,
+    ) {}
+
     public function evaluate(Reading $reading): void
     {
         $threshold = $reading->pond->threshold;
@@ -105,7 +109,7 @@ class AlertEvaluationService
         mixed $maxThreshold,
         string $message,
     ): void {
-        $reading->alerts()->create([
+        $alert = $reading->alerts()->create([
             'pond_id' => $reading->pond_id,
             'device_id' => $reading->device_id,
             'parameter' => $parameter,
@@ -117,5 +121,7 @@ class AlertEvaluationService
             'message' => $message,
             'detected_at' => now(),
         ]);
+
+        $this->internalNotificationService->notifyAlertCreated($alert);
     }
 }

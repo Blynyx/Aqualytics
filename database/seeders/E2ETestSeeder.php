@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\FishFarm;
+use App\Models\InternalNotification;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -99,7 +100,7 @@ class E2ETestSeeder extends Seeder
                 'recorded_at' => now(),
             ]);
 
-            $reading->alerts()->create([
+            $alert = $reading->alerts()->create([
                 'pond_id' => $pond->id,
                 'device_id' => $device->id,
                 'parameter' => 'ph',
@@ -110,6 +111,21 @@ class E2ETestSeeder extends Seeder
                 'message' => 'pH por debajo del rango configurado',
                 'detected_at' => now(),
             ]);
+
+            $fishFarm->users()
+                ->whereIn('role', [User::ROLE_ADMIN, User::ROLE_SUPERVISOR])
+                ->get()
+                ->each(function (User $recipient) use ($fishFarm, $alert): void {
+                    InternalNotification::query()->create([
+                        'fish_farm_id' => $fishFarm->id,
+                        'user_id' => $recipient->id,
+                        'type' => InternalNotification::TYPE_ALERT_CREATED,
+                        'source_type' => InternalNotification::SOURCE_ALERT,
+                        'source_id' => $alert->id,
+                        'title' => 'Nueva alerta hídrica',
+                        'message' => 'pH por debajo del rango configurado en Estanque Cypress.',
+                    ]);
+                });
         });
     }
 }

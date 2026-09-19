@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\InternalNotification;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +23,29 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->resolveRelativeSqlitePath();
+        $this->composeUnreadNotificationsCount();
+
+        Route::bind('notification', function (string $value): InternalNotification {
+            return InternalNotification::query()->findOrFail($value);
+        });
+    }
+
+    private function composeUnreadNotificationsCount(): void
+    {
+        View::composer('layouts.app', function ($view): void {
+            $user = auth()->user();
+
+            if ($user === null) {
+                $view->with('unreadNotificationsCount', 0);
+
+                return;
+            }
+
+            $view->with(
+                'unreadNotificationsCount',
+                $user->internalNotifications()->unread()->count(),
+            );
+        });
     }
 
     /**
